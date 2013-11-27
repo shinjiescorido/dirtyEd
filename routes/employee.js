@@ -1,11 +1,11 @@
-/*var MongoClient = require('mongodb').MongoClient,
+var MongoClient = require('mongodb').MongoClient,
     Server = require('mongodb').Server,
-    db;*/
-
-var mongodb = require('mongodb'),
     db;
 
-/*var mongoClient = new MongoClient(new Server('mongodb://root:root@ds039487.mongolab.com', 39487));
+//var mongodb = require('mongodb'),
+//      db;
+
+var mongoClient = new MongoClient(new Server('localhost', 27017));
 mongoClient.open(function(err, mongoClient) {
     db = mongoClient.db("ed");
     db.collection('employees', {strict:true}, function(err, collection) {
@@ -14,9 +14,9 @@ mongoClient.open(function(err, mongoClient) {
             populateDB();
         }
     });
-});*/
+});
 
-var uri = 'mongodb://root:root@ds039487.mongolab.com:39487/ed';
+/*var uri = 'mongodb://root:root@ds039487.mongolab.com:39487/ed';
 mongodb.MongoClient.connect(uri, function (err, dbase) {
     db = dbase;
     db.collection('employees', {strict:true}, function(err, collection) {
@@ -25,7 +25,7 @@ mongodb.MongoClient.connect(uri, function (err, dbase) {
             populateDB();
         }
     });
-});
+});*/
 
 exports.getEmployeesByName = function(req, res) {
     console.log(req.params);
