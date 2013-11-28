@@ -1,5 +1,6 @@
 module.exports = function(app, custom_fields) {
 	app.get('/custom-fields', listFields);
+	app.get('/basic-fields', listBasicFields);
 	app.post('/custom-fields', createField);
 
 	//curl http://localhost:3000/custom-fields
@@ -12,6 +13,26 @@ module.exports = function(app, custom_fields) {
 		   	options.limit = req.query.limit;
 		}
 		custom_fields.customFieldsModel.find(null, null, options, function (err, docs) {
+		    if (err) {
+		    	//console.log(err);
+		    	res.send(500, err);
+		    } else {
+		    	res.send(200, docs);
+		    	console.log(docs);
+		    }
+		});
+	}
+
+	//curl http://localhost:3000/basic-fields
+	function listBasicFields(req, res) {
+		var options = {};
+		if (req.query.skip) {
+			options.skip = req.query.skip;
+		}
+		if (req.query.limit) {
+		   	options.limit = req.query.limit;
+		}
+		custom_fields.customFieldsModel.find({ isBasic : true}, null, options, function (err, docs) {
 		    if (err) {
 		    	//console.log(err);
 		    	res.send(500, err);
