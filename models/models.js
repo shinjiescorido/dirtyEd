@@ -29,12 +29,21 @@ var userSchema = mongoose.Schema({
   isActive: Boolean
 });
 
-var notificationsSchema
-
+var notificationsSchema = mongoose.Schema({
+  sender: ObjectId,
+  toAll: Boolean,
+  receipent: ObjectId,
+  date: Date,
+  isActive: Boolean,
+  message: String
+})
 
 var CustomFields = mongoose.model('CustomFields', customFieldsSchema);
-exports.CustomFields = CustomFields;
+exports.customFieldsModel = CustomFields;
 
-var User = mongoose.model('User', userSchema);
-exports.User = User;
+var Users = mongoose.model('Users', userSchema);
+exports.Users = Users;
+
+var Notifications = mongoose.model('Notifications', notificationsSchema);
+exports.Notifications = Notifications;
 
