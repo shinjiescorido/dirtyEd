@@ -12,10 +12,11 @@ exports.mongoose = mongoose;
 
 var customFieldsSchema = mongoose.Schema({
   label: { type: String, required: true },
-  fieldType: { type: Number },
+  fieldType: { type: Number, , required: true },
   accessModifier: Boolean,
   values: [String],
-  required: Boolean
+  required: Boolean,
+  isBasic: Boolean
 })
 
 var userSchema = mongoose.Schema
