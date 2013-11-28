@@ -23,6 +23,19 @@ var directory = {
 
 };
 
+function tz_err(key, sel, val, msg){
+    if(val){
+        if(!($("#errLogin div#err" + key).length > 0))
+          $("#errLogin").append("<div id='err" + key + "'>" + msg + ".</div>")
+        $(sel).closest('.form-group').addClass('error');
+        $(sel).closest('.form-group').find('label').attr('for', 'inputError');
+    } else {
+        $("#errLogin div#err" + key).remove();
+        $(sel).closest('.form-group').removeClass('error');
+        $(sel).closest('.form-group').find('label').attr('for', '');
+    }
+}
+
 directory.Router = Backbone.Router.extend({
 
     routes: {
@@ -54,7 +67,7 @@ directory.Router = Backbone.Router.extend({
                 self.$content.html(new directory.CustFieldView({model: data}).render().el);
             }
         });
-        directory.shellView.selectMenuItem();
+        directory.shellView.selectMenuItem('cust-menu');
     },
 
     home: function () {
