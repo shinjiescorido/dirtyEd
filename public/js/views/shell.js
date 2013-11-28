@@ -36,6 +36,5 @@ directory.ShellView = Backbone.View.extend({
         if (menuItem) {
             $('.' + menuItem).addClass('active');
         }
-    }
-
+    },
 });
