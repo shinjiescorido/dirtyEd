@@ -16,7 +16,7 @@ app.configure(function () {
 * __________________________________________________________________________
 * Model file for each major area of functionality in the site
 **/
-var custom_fields = require('./models/models');
+var models = require('./models/models');
 
 /**
 * ROUTES
@@ -24,7 +24,7 @@ var custom_fields = require('./models/models');
 * Route file for each major area of functionality in the site
 **/
 
-require('./routes/custom_fields')(app, custom_fields);
+require('./routes/custom_fields')(app, models);
 // require('./routes/custom_fields')(app);
 
 

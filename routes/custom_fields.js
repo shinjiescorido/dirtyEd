@@ -22,7 +22,7 @@ module.exports = function(app, custom_fields) {
 		});
 	}
 
-	//curl -d "label=Home Phone 2&fieldType=1&accessModifier=1&value[0]=1234567&value[1]=234343&required=1" http://localhost:3000/custom-fields
+	//curl -d "label=First Name&fieldType=1&value[0]= &isPublic=1&isRequired=1&isBasic=1&isEditable=1" http://localhost:3000/custom-fields
 	function createField(req, res) {
     	custom_fields.customFieldsModel.create(req.body, function (err, doc) {
     		if (err) {
