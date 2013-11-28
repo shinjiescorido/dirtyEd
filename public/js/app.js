@@ -28,7 +28,8 @@ directory.Router = Backbone.Router.extend({
     routes: {
         "":                 "home",
         "contact":          "contact",
-        "employees/:id":    "employeeDetails"
+        "employees/:id":    "employeeDetails",
+        "login":            "login"
     },
 
     initialize: function () {
@@ -63,6 +64,19 @@ directory.Router = Backbone.Router.extend({
         directory.shellView.selectMenuItem('contact-menu');
     },
 
+    login: function () {
+        // Since the home view never changes, we instantiate it and render it only once
+        if (!directory.loginView) {
+            directory.loginView = new directory.LoginView();
+            directory.loginView.render();
+        } else {
+            console.log('reusing home view');
+            directory.loginView.delegateEvents(); // delegate events when the view is recycled
+        }
+        this.$content.html(directory.loginView.el);
+        directory.shellView.selectMenuItem('login-menu');
+    },
+
     employeeDetails: function (id) {
         var employee = new directory.Employee({id: id});
         var self = this;
@@ -80,7 +94,7 @@ directory.Router = Backbone.Router.extend({
 });
 
 $(document).on("ready", function () {
-    directory.loadTemplates(["HomeView", "ContactView", "ShellView", "EmployeeView", "EmployeeSummaryView", "EmployeeListItemView"],
+    directory.loadTemplates(["HomeView", "ContactView", "ShellView", "EmployeeView", "EmployeeSummaryView", "EmployeeListItemView", "LoginView"],
         function () {
             directory.router = new directory.Router();
             Backbone.history.start();
