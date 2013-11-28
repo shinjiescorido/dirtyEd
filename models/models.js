@@ -11,8 +11,6 @@ mongoose.connect(uri, function (err) {
 
 exports.mongoose = mongoose;
 
-var ObjectId = mongoose.Schema.Types.ObjectId;
-
 var customFieldsSchema = mongoose.Schema({
   label: { type: String, required: true },
   fieldType: { type: Number, required: true },
@@ -20,21 +18,16 @@ var customFieldsSchema = mongoose.Schema({
   values: [String],
   isRequired: Boolean,
   isBasic: Boolean,
-  isEditable: Boolean,
-  isActive: Boolean
-});
+  isEditable: Boolean
+})
 
-var userSchema = mongoose.Schema({
-  field: [{ objectID: ObjectId, assignedValue: String, requestedValue: String }],
-  isActive: Boolean
-});
+// var userSchema = mongoose.Schema({
+//   fieldID: Obj
+// })
 
-var notificationsSchema
+// var userSchema = mongoose.Schema
 
+var customFields = mongoose.model('CustomFields', customFieldsSchema);
+exports.customFieldsModel = customFields;
 
-var CustomFields = mongoose.model('CustomFields', customFieldsSchema);
-exports.CustomFields = CustomFields;
-
-var User = mongoose.model('User', userSchema);
-exports.User = User;
 

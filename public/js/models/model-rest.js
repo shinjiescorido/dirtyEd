@@ -32,3 +32,24 @@ directory.EmployeeCollection = Backbone.Collection.extend({
     url:"http://localhost:3000/employees"
 
 });
+
+directory.BasicField = Backbone.Model.extend({
+
+    //urlRoot:"/directory-rest-php/employees",
+    urlRoot:"http://localhost:3000/basic-fields",
+
+    initialize:function () {
+        this.reports = new directory.BasicFieldCollection();
+        this.reports.url = this.urlRoot + "/" + this.id + "/reports";
+    }
+
+});
+
+directory.BasicFieldCollection = Backbone.Collection.extend({
+
+    model: directory.BasicField,
+
+//    url:"/directory-rest-php/employees"
+    url:"http://localhost:3000/basic-fields"
+
+});
