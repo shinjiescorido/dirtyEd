@@ -14,7 +14,7 @@ var directory = {
                     directory[view].prototype.template = _.template(data);
                 }, 'html'));
             } else {
-                alert(view + " not found");
+                alert('tpl/' + view + '.html' + " not found");
             }
         });
 
@@ -29,7 +29,8 @@ directory.Router = Backbone.Router.extend({
         "":                 "home",
         "contact":          "contact",
         "employees/:id":    "employeeDetails",
-        "login":            "login"
+        "login":            "login",
+        "custfield/:id":    "custfield"
     },
 
     initialize: function () {
@@ -40,6 +41,20 @@ directory.Router = Backbone.Router.extend({
             $('.dropdown').removeClass("open");
         });
         this.$content = $("#content");
+    },
+
+    custfield: function (id) {
+        var employee = new directory.Employee({id: id});
+        var self = this;
+        employee.fetch({
+            success: function (data) {
+                console.log(data);
+                // Note that we could also 'recycle' the same instance of EmployeeFullView
+                // instead of creating new instances
+                self.$content.html(new directory.CustFieldView({model: data}).render().el);
+            }
+        });
+        directory.shellView.selectMenuItem();
     },
 
     home: function () {
@@ -94,7 +109,7 @@ directory.Router = Backbone.Router.extend({
 });
 
 $(document).on("ready", function () {
-    directory.loadTemplates(["HomeView", "ContactView", "ShellView", "EmployeeView", "EmployeeSummaryView", "EmployeeListItemView", "LoginView"],
+    directory.loadTemplates(["HomeView", "ContactView", "ShellView", "EmployeeView", "EmployeeSummaryView", "EmployeeListItemView", "LoginView", "CustFieldView"],
         function () {
             directory.router = new directory.Router();
             Backbone.history.start();
