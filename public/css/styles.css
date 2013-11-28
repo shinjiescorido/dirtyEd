@@ -19,3 +19,7 @@ body {
 .no-reports {
     display: none;
 }
+
+.paddBlock {
+    padding-right: .5em;
+}
