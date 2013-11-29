@@ -24,16 +24,20 @@ var directory = {
 };
 
 function tz_err(key, sel, val, msg){
+    var ret;
     if(val){
         if(!($("#errLogin div#err" + key).length > 0))
           $("#errLogin").append("<div id='err" + key + "'>" + msg + ".</div>")
         $(sel).closest('.form-group').addClass('error');
         $(sel).closest('.form-group').find('label').attr('for', 'inputError');
+        ret = false;
     } else {
         $("#errLogin div#err" + key).remove();
         $(sel).closest('.form-group').removeClass('error');
         $(sel).closest('.form-group').find('label').attr('for', '');
+        ret = true;
     }
+    return ret;
 }
 
 directory.Router = Backbone.Router.extend({
@@ -43,7 +47,7 @@ directory.Router = Backbone.Router.extend({
         "contact":          "contact",
         "employees/:id":    "employeeDetails",
         "login":            "login",
-        "custfield/:id":    "custfield"
+        "custfield":    "custfield"
     },
 
     initialize: function () {
@@ -57,16 +61,15 @@ directory.Router = Backbone.Router.extend({
     },
 
     custfield: function (id) {
-        var employee = new directory.Employee({id: id});
-        var self = this;
-        employee.fetch({
-            success: function (data) {
-                console.log(data);
-                // Note that we could also 'recycle' the same instance of EmployeeFullView
-                // instead of creating new instances
-                self.$content.html(new directory.CustFieldView({model: data}).render().el);
-            }
-        });
+        // Since the home view never changes, we instantiate it and render it only once
+        if (!directory.custFieldView) {
+            directory.custFieldView = new directory.CustFieldView();
+            directory.custFieldView.render();
+        } else {
+            console.log('reusing home view');
+            directory.custFieldView.delegateEvents(); // delegate events when the view is recycled
+        }
+        this.$content.html(directory.custFieldView.el);
         directory.shellView.selectMenuItem('cust-menu');
     },
 

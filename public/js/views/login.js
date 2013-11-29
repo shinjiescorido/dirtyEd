@@ -22,8 +22,11 @@ directory.LoginView = Backbone.View.extend({
     },
 
     dovalidate: function() {
-        tz_err(1, "#exampleInputEmail1", !$("#exampleInputEmail1").val(), "Please Provide a User ID");
-        tz_err(2, "#exampleInputPassword1", !$("#exampleInputPassword1").val(), "Please Provide a password");
+        if(tz_err(1, "#exampleInputEmail1", !$("#exampleInputEmail1").val(), "Please Provide a User Name")) {
+            tz_err(2, "#exampleInputEmail1", $("#exampleInputEmail1").val().length < 6 || $("#exampleInputEmail1").val().length > 10, "User Name must be between 6-10 characters");
+            tz_err(3, "#exampleInputEmail1", !$("#exampleInputEmail1").val().match("/^[A-Za-z0-9]$/"), "Invalid User Name");
+        }
+        tz_err(4, "#exampleInputPassword1", !$("#exampleInputPassword1").val(), "Please Provide a password");
     }
 });
 

@@ -1,11 +1,44 @@
-<div id="details" class="span7"></div>
-<div class="span5">
-    <div id="reports" class="well">
-        <h3 class="modal-header">Direct Reports</h3>
+<div class="hero-unit" style="padding-bottom: 20px;">
+    <div class="row-fluid" style="text-align: right;">
+        <div style="form-actions">
+            <button style="text-align: right;" class="btn btn-primary"><i class="icon-plus"></i> Add Custom Field</button>
+            <hr/>
+        </div>
+        <div style="text-align: left;">
+            <form role="form">
+                <div class="form-group control-group">
+                    <label class="control-label" for="label">Label</label>
+                    <input type="text" class="form-control" id="label" placeholder="Label">
+                    <label class="control-label help-inline" for="label"></label>
+                </div>
+                <div class="form-group control-group">
+                    <label class="control-label" for="label">Field Type</label>
+                    <input type="hidden" class="form-control" id="fieldTypeDDownId" placeholder="Label">
 
-        <div class="alert alert-info no-reports">
-            <h4 class="alert-heading">Info</h4>
-            <%= firstName %> <%= lastName %> has no direct reports
+                    <div class="btn-group">
+                        <button type="button" class="btn" id="fieldTypeDDownBtn">panut</button>
+                        <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" id="fieldTypeDDown" role="menu">
+                        </ul>
+                    </div>
+
+                    <label class="control-label help-inline" for="label"></label>
+                </div>
+                <div class="form-group control-group">
+                    <label class="control-label" for="label">isRequired?</label>
+                    <input type="text" class="form-control" id="label" placeholder="Label">
+                    <label class="control-label help-inline" for="label"></label>
+                </div>
+                <div class="btn-group" data-toggle="buttons-radio">
+                    <button type="button" name="att" class="btn active">Present</button>
+                    <button type="button" name="att" class="btn">Absent</button>
+                    <button type="button" name="att" class="btn">Leave</button>
+                </div>
+                <button type="submit" class="btn btn-primary" id="login">Submit</button>
+            </form>
+            <hr/>
         </div>
     </div>
 </div>
