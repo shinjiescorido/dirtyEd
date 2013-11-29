@@ -21,11 +21,12 @@ var customFieldsSchema = mongoose.Schema({
   isRequired: Boolean,
   isBasic: Boolean,
   isEditable: Boolean,
-  isActive: Boolean
+  isActive: Boolean,
+  index: Number
 });
 
 var userSchema = mongoose.Schema({
-  field: [{ objectID: ObjectId, assignedValue: String, requestedValue: String }],
+  field: [{ objectID: ObjectId, assignedValue: [String], requestedValue: [String] }],
   isActive: Boolean
 });
 

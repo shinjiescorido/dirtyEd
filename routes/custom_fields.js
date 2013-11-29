@@ -1,10 +1,8 @@
 module.exports = function(app, custom_fields) {
-	app.get('/custom-fields', listFields);
-	app.get('/basic-fields', listBasicFields);
-	app.post('/custom-fields', createField);
+	
 
 	//curl http://localhost:3000/custom-fields
-	function listFields(req, res) {
+	var listFields = function (req, res) {
 		var options = {};
 		if (req.query.skip) {
 			options.skip = req.query.skip;
@@ -18,7 +16,6 @@ module.exports = function(app, custom_fields) {
 		    	res.send(500, err);
 		    } else {
 		    	res.send(200, docs);
-		    	console.log(docs);
 		    }
 		});
 	}
@@ -49,18 +46,35 @@ module.exports = function(app, custom_fields) {
     		if (err) {
     			console.log(err);
     		} else {
-    			console.log('Added to db');
-    			custom_fields.customFieldsModel.update({_id: doc.id}, {$push: {values: req.body.value}}, function (err, doc) {
-		    		if (err) {
-                        res.send(500, err);
-		    			console.log(err);
-		    		} else {
-		    			console.log('Value pushed to DB');
-		    		}
-		    	});
+    			res.send(200, doc)
+    			console.log('Added to Custom Fields');
     		}
     	});
-
     }
+
+
+    //curl -X DELETE 'http://localhost:3000/custom-fields/5296ac83b5a2a80336000001'
+    function deleteField (req, res) {
+    	var id = req.params.id;
+    	custom_fields.customFieldsModel.findByIdAndRemove(id, function (err, doc) {
+		    if (err) {
+		      console.log(err);
+		      res.send(404, err);
+		    } else {
+		      res.send(200, doc);
+		    }
+		})
+    }
+
+
+    app.get('/custom-fields', listFields);
+	app.get('/basic-fields', listBasicFields);
+	app.post('/custom-fields', createField);
+
+
+	//temp delete to remove test items
+    app.delete('/custom-fields/:id', deleteField);
+
+    module.exports.listFields = listFields;
 	
 }

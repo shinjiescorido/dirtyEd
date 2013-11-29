@@ -29,8 +29,6 @@ require('./routes/users')(app, models);
 require('./routes/notifications')(app, models);
 
 
-
-
 app.get('/employees/:id/reports', wines.findByManager);
 app.get('/employees/:id', wines.findById);
 app.get('/employees', wines.findAll);
