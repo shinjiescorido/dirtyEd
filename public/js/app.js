@@ -14,7 +14,7 @@ var directory = {
                     directory[view].prototype.template = _.template(data);
                 }, 'html'));
             } else {
-                alert(view + " not found");
+                alert('tpl/' + view + '.html' + " not found");
             }
         });
 
@@ -23,13 +23,31 @@ var directory = {
 
 };
 
+function tz_err(key, sel, val, msg){
+    var ret;
+    if(val){
+        if(!($("#errLogin div#err" + key).length > 0))
+          $("#errLogin").append("<div id='err" + key + "'>" + msg + ".</div>")
+        $(sel).closest('.form-group').addClass('error');
+        $(sel).closest('.form-group').find('label').attr('for', 'inputError');
+        ret = false;
+    } else {
+        $("#errLogin div#err" + key).remove();
+        $(sel).closest('.form-group').removeClass('error');
+        $(sel).closest('.form-group').find('label').attr('for', '');
+        ret = true;
+    }
+    return ret;
+}
+
 directory.Router = Backbone.Router.extend({
 
     routes: {
         "":                 "home",
         "contact":          "contact",
         "employees/:id":    "employeeDetails",
-        "login":            "login"
+        "login":            "login",
+        "custfield":    "custfield"
     },
 
     initialize: function () {
@@ -40,6 +58,19 @@ directory.Router = Backbone.Router.extend({
             $('.dropdown').removeClass("open");
         });
         this.$content = $("#content");
+    },
+
+    custfield: function (id) {
+        // Since the home view never changes, we instantiate it and render it only once
+        if (!directory.custFieldView) {
+            directory.custFieldView = new directory.CustFieldView();
+            directory.custFieldView.render();
+        } else {
+            console.log('reusing home view');
+            directory.custFieldView.delegateEvents(); // delegate events when the view is recycled
+        }
+        this.$content.html(directory.custFieldView.el);
+        directory.shellView.selectMenuItem('cust-menu');
     },
 
     home: function () {
@@ -94,7 +125,7 @@ directory.Router = Backbone.Router.extend({
 });
 
 $(document).on("ready", function () {
-    directory.loadTemplates(["HomeView", "ContactView", "ShellView", "EmployeeView", "EmployeeSummaryView", "EmployeeListItemView", "LoginView"],
+    directory.loadTemplates(["HomeView", "ContactView", "ShellView", "EmployeeView", "EmployeeSummaryView", "EmployeeListItemView", "LoginView", "CustFieldView"],
         function () {
             directory.router = new directory.Router();
             Backbone.history.start();
