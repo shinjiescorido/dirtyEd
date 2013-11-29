@@ -1,8 +1,16 @@
 module.exports = function(app, custom_fields) {
 	
+	app.get('/custom-fields', listFields);
+	app.get('/basic-fields', listBasicFields);
+	app.post('/custom-fields', createField);
+
+
+	//temp delete to remove test items
+    app.delete('/custom-fields/:id', deleteField);
+
 
 	//curl http://localhost:3000/custom-fields
-	var listFields = function (req, res) {
+	function listFields(req, res) {
 		var options = {};
 		if (req.query.skip) {
 			options.skip = req.query.skip;
@@ -65,15 +73,6 @@ module.exports = function(app, custom_fields) {
 		    }
 		})
     }
-
-
-    app.get('/custom-fields', listFields);
-	app.get('/basic-fields', listBasicFields);
-	app.post('/custom-fields', createField);
-
-
-	//temp delete to remove test items
-    app.delete('/custom-fields/:id', deleteField);
 
     module.exports.listFields = listFields;
 	
