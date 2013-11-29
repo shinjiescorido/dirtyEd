@@ -1,14 +1,15 @@
 <div class="hero-unit" style="padding-bottom: 20px;">
     <div class="row-fluid" style="text-align: right;">
+    <div class="alert alert-success" style="text-align: left; display: none; visibility: hidden" id="info"></div>
         <div style="form-actions">
-            <button style="text-align: right;" class="btn btn-primary"><i class="icon-plus"></i> Add Custom Field</button>
+            <button style="text-align: right;" class="btn btn-primary" id="clker"><i class="icon-plus"></i> Add Custom Field</button>
             <hr/>
         </div>
-        <div style="text-align: left;">
+        <div style="text-align: left; display: none; visibility: hidden;" id="addHider">
             <form role="form">
                 <div class="form-group control-group">
                     <label class="control-label" for="label">Label</label>
-                    <input type="text" class="form-control" id="label" placeholder="Label">
+                    <input type="text" class="form-control" placeholder="Label" name="lableParam" id="lableParam">
                     <label class="control-label help-inline" for="label"></label>
                 </div>
                 <div class="form-group control-group">
@@ -26,16 +27,22 @@
 
                     <label class="control-label help-inline" for="label"></label>
                 </div>
-                <div class="form-group control-group">
-                    <label class="control-label" for="label">isRequired?</label>
-                    <input type="text" class="form-control" id="label" placeholder="Label">
+                <div class="form-group control-group" style="vertical-align: top">
+                    <label class="control-label" for="label">Value(s)</label>
+                    <input type="text" class="form-control" placeholder="value" style="margin-bottom: 0px;" id="valxx" name="value">
+                    <button style="text-align: right; display: none; visbility:hidden;" class="btn" id="addbutn"><i class="icon-plus"></i>
+                    </button>
                     <label class="control-label help-inline" for="label"></label>
                 </div>
-                <div class="btn-group" data-toggle="buttons-radio">
-                    <button type="button" name="att" class="btn active">Present</button>
-                    <button type="button" name="att" class="btn">Absent</button>
-                    <button type="button" name="att" class="btn">Leave</button>
+                <div id="addValues">
                 </div>
+                <br />
+                <div class="btn-group" data-toggle="buttons-check" style="display: block;">
+                    <button type="button" name="att" class="btn">Required</button>
+                    <button type="button" name="att" class="btn">Public</button>
+                    <button type="button" name="att" class="btn">Editable</button>
+                </div>
+                <br />
                 <button type="submit" class="btn btn-primary" id="login">Submit</button>
             </form>
             <hr/>
