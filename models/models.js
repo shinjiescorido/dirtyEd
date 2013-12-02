@@ -45,6 +45,7 @@ exports.customFieldsModel = CustomFields;
 var Users = mongoose.model('Users', userSchema);
 exports.Users = Users;
 
+
 var Notifications = mongoose.model('Notifications', notificationsSchema);
 exports.Notifications = Notifications;
 
