@@ -259,7 +259,7 @@ directory.CustFieldView = Backbone.View.extend({
 
         data = {
             label       : mappedData.lableParam,
-            fieldType   : 1,
+            fieldType   : mappedData.fieldType,
             values      : values,
             isRequired  : this.toggledCheckbox('isRequired'),
             isPublic    : this.toggledCheckbox('isPublic'),
