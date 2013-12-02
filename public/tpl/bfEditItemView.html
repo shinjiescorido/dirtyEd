@@ -1,10 +1,10 @@
 <% if(!isMult) { %>
-<input type="text" value=<%= "\"" + values[0] + "\"" %> />
+<input type="text" name="val" value=<%= "\"" + values[0] + "\"" %> />
 <% } else {
 	  for(var i in values){
 	%>
 	<div>
-	    <input type="text" value=<%= "\"" + values[i] + "\"" %> />
+	    <input type="text" name="val" value=<%= "\"" + values[i] + "\"" %> />
 	    <% if(i == 0) { %>
 	    <button class="btn btn-default" style="margin-bottom: 10px;" onclick="$(this).closest('td').append('<div>' + $('#template_001').html() + '</div>')"><i class="icon-plus"></i></button>
 	    <% } else { %>

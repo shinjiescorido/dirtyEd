@@ -118,7 +118,8 @@ directory.bfListItemView = Backbone.View.extend({
 
     events: {
         "click #basicEditer": "basicEditer",
-        "click #basicCanceller": "basicCanceller"
+        "click #basicCanceller": "basicCanceller",
+        "click #basicSaver" : "basicSaver"
     },
 
     tagName: "tr",
@@ -148,6 +149,19 @@ directory.bfListItemView = Backbone.View.extend({
             model: this.model
         }).render().el);
         $(ev.target).closest("td").html("<button class=\"btn btn-default\" id=\"basicEditer\">edit</button>");
+    },
+
+    basicSaver: function(ev){
+        alert("edit directory.bfListItemView.basicSaver of custfield.js");
+        alert("data = " + JSON.stringify($(ev.target).closest("tr").find("input").serializeArray()));
+
+        //Call below for success
+        //$("#info-basic").html("success message")
+        //$("#info-basic").css('display', 'block').css('visibility', 'visible');
+
+        //Call below for error
+        //$("#err-basic").html("error message")
+        //$("#err-basic").css('display', 'block').css('visibility', 'visible');
     }
 });
 
