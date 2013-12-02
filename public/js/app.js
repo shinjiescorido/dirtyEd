@@ -74,8 +74,28 @@ directory.Router = Backbone.Router.extend({
         this.$content = $("#content");
     },
 
-    custfield: function(id) {
-        // Since the home view never changes, we instantiate it and render it only once
+    custfield: function() {
+        var basicField = new directory.BasicField();
+        var customField = new directory.CustomField();
+
+        var self = this;
+
+        basicField.fetch({
+            success: function(data) {
+                console.log(data);
+
+                customField.fetch({
+                    success: function(data2) {
+                        console.log(data2);
+                        var wrap = [data, data2];
+                        self.$content.html(new directory.CustFieldView({
+                            model: wrap
+                        }).render().el);
+                    }
+                });
+            }
+        });
+
         if (!directory.custFieldView) {
             directory.custFieldView = new directory.CustFieldView();
             directory.custFieldView.render();
@@ -85,6 +105,24 @@ directory.Router = Backbone.Router.extend({
         }
         this.$content.html(directory.custFieldView.el);
         directory.shellView.selectMenuItem('cust-menu');
+    },
+
+    employeeDetails: function(id) {
+        var employee = new directory.Employee({
+            id: id
+        });
+        var self = this;
+        employee.fetch({
+            success: function(data) {
+                console.log(data);
+                // Note that we could also 'recycle' the same instance of EmployeeFullView
+                // instead of creating new instances
+                self.$content.html(new directory.EmployeeView({
+                    model: data
+                }).render().el);
+            }
+        });
+        directory.shellView.selectMenuItem();
     },
 
     home: function() {
@@ -120,30 +158,12 @@ directory.Router = Backbone.Router.extend({
         }
         this.$content.html(directory.loginView.el);
         directory.shellView.selectMenuItem('login-menu');
-    },
-
-    employeeDetails: function(id) {
-        var employee = new directory.Employee({
-            id: id
-        });
-        var self = this;
-        employee.fetch({
-            success: function(data) {
-                console.log(data);
-                // Note that we could also 'recycle' the same instance of EmployeeFullView
-                // instead of creating new instances
-                self.$content.html(new directory.EmployeeView({
-                    model: data
-                }).render().el);
-            }
-        });
-        directory.shellView.selectMenuItem();
     }
 
 });
 
 $(document).on("ready", function() {
-    directory.loadTemplates(["HomeView", "ContactView", "ShellView", "EmployeeView", "EmployeeSummaryView", "EmployeeListItemView", "LoginView", "CustFieldView"],
+    directory.loadTemplates(["HomeView", "ContactView", "ShellView", "EmployeeView", "EmployeeSummaryView", "EmployeeListItemView", "LoginView", "CustFieldView", "bfListItemView", "cfListItemView"],
         function() {
             directory.router = new directory.Router();
             Backbone.history.start();
