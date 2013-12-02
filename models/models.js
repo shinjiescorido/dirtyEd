@@ -18,7 +18,9 @@ var customFieldsSchema = mongoose.Schema({
   values: [String],
   isRequired: Boolean,
   isBasic: Boolean,
-  isEditable: Boolean
+  isEditable: Boolean,
+  isActive: Boolean,
+  index: Number
 })
 
 // var userSchema = mongoose.Schema({
