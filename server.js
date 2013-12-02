@@ -25,9 +25,8 @@ var models = require('./models/models');
 **/
 
 require('./routes/custom_fields')(app, models);
-// require('./routes/custom_fields')(app);
-
-
+require('./routes/users')(app, models);
+require('./routes/notifications')(app, models);
 
 
 app.get('/employees/:id/reports', wines.findByManager);
