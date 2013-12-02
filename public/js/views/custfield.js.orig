@@ -53,6 +53,7 @@ function getIndexById(idx) {
     return id;
 }
 
+<<<<<<< HEAD
 directory.cfListView = Backbone.View.extend({
 
     tagName: 'tbody',
@@ -65,7 +66,7 @@ directory.cfListView = Backbone.View.extend({
         if (this.model)
             for (var key in this.model["attributes"]) {
                 if (this.model["attributes"].hasOwnProperty(key)) {
-                    this.$el.append(new directory.cfListItemView({
+                    this.$el.append(new directory.bfListItemView({
                         model: this.model["attributes"][key]
                     }).render().el);
                 }
@@ -95,10 +96,6 @@ directory.cfListItemView = Backbone.View.extend({
 
 directory.bfListView = Backbone.View.extend({
 
-    events: {
-        "click #basicEditer": "basicEditer"
-    },
-
     tagName: 'tbody',
 
     className: 'basics',
@@ -115,10 +112,6 @@ directory.bfListView = Backbone.View.extend({
                 }
             }
         return this;
-    },
-
-    basicEditer: function(){
-        alert(1)
     }
 });
 
@@ -139,22 +132,28 @@ directory.bfListItemView = Backbone.View.extend({
         return this;
     }
 
+=======
+directory.CustFieldModel = Backbone.Model.extend({
+    url: 'http://localhost:3000/custom-fields'
+});
+
+directory.CustFieldsCollection = Backbone.Collection.extend({
+    model: directory.CustFieldModel,
+    url: 'http://localhost:3000/custom-fields'
+>>>>>>> 346106278d8a70299431a5cca5c68c3ef47d6724
 });
 
 directory.CustFieldView = Backbone.View.extend({
 
     events: {
-        "click .ddb": "changedDown",
-        "click #addbutn": "addFields",
-        "click .remVal": "remFields",
-        "click #clker": "toggleHider",
-        "click #login": "submiter",
+        "click .ddb"                : "changedDown",
+        "click #addbutn"            : "addFields",
+        "click .remVal"             : "remFields",
+        "click #clker"              : "toggleHider",
         "submit #customFieldForm"   : "submiter"
     },
 
     render: function() {
-        this.$el.html(this.template());
-
         for (var i = 0; i < dDown.length; i++) {
             if (i == 0) {
                 this.$el.find("#fieldTypeDDownBtn").html(dDown[i].label);
@@ -162,13 +161,14 @@ directory.CustFieldView = Backbone.View.extend({
             }
             this.$el.find("#fieldTypeDDown").append("<li class='ddb'><a>" + dDown[i].label + "</a></li>");
         };
+        this.$el.html(this.template());
 
-        if (this.model && this.model[0])
+        if (this.model[0])
             $(this.el).find(".basics").append(new directory.bfListView({
                 model: this.model[0]
             }).render().el);
 
-        if (this.model && this.model[1])
+        if (this.model[1])
             $(this.el).find(".customs").append(new directory.cfListView({
                 model: this.model[1]
             }).render().el);
@@ -199,8 +199,8 @@ directory.CustFieldView = Backbone.View.extend({
     addFields: function() {
         $("#addValues").append(
             "<div style=\"vertical-align: top\" class=\"newval\">" +
-            "     <input type=\"text\" class=\"form-control\" id=\"label\" placeholder=\"value\" style=\"margin-bottom: 0px;\">" +
-            "     <button style=\"text-align: right;\" class=\"btn remVal\"><i class=\"icon-minus\"></i>" +
+            "     <input type=\"text\" class=\"form-control\" id=\"label\" placeholder=\"value\" name=\"value\" style=\"margin-bottom: 0px;\">" +
+            "     <button type=\"button\" style=\"text-align: right;\" class=\"btn remVal\"><i class=\"icon-minus\"></i>" +
             "    </button>" +
             "</div>");
     },
@@ -218,7 +218,8 @@ directory.CustFieldView = Backbone.View.extend({
             $("#addHider").css('display', 'none').css('visibility', 'hidden');
     },
 
-    submiter: function() {
+    submiter: function(evt) {
+        evt.preventDefault();
         $("#info").css('display', 'none').css('visibility', 'hidden');
         var isValid = true;
         isValid = isValid & tz_err_inline("#lableParam", !$('#lableParam').val(), "Please fill up empty field.");
@@ -227,7 +228,7 @@ directory.CustFieldView = Backbone.View.extend({
 
         if (isValid) {
             $("#addHider").css('display', 'none').css('visibility', 'hidden');
-            $("#lableParam").val("");
+            //$("#lableParam").val("");
 
             for (var i = 0; i < dDown.length; i++) {
                 if (i == 0) {
@@ -236,7 +237,7 @@ directory.CustFieldView = Backbone.View.extend({
                 }
             };
 
-            $("#valxx").val("");
+            //$("#valxx").val("");
 
             //PERFORM SAVE HERE
             this.submitForm(evt);
@@ -244,8 +245,6 @@ directory.CustFieldView = Backbone.View.extend({
             $("#info").html("Successfully added new field.")
             $("#info").css('display', 'block').css('visibility', 'visible');
         }
-
-        return false;
     },
 
     submitForm: function(evt) {
@@ -267,7 +266,7 @@ directory.CustFieldView = Backbone.View.extend({
 
         data = {
             label       : mappedData.lableParam,
-            fieldType   : mappedData.fieldType,
+            fieldType   : 1,
             values      : values,
             isRequired  : this.toggledCheckbox('isRequired'),
             isPublic    : this.toggledCheckbox('isPublic'),
