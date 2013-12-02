@@ -74,8 +74,20 @@ module.exports = function(app, custom_fields) {
     		if (err) {
     			console.log(err);
     		} else {
+
     			res.send(200, doc)
     			console.log('Added to Custom Fields');
+
+    			console.log('Added to db');
+    			custom_fields.customFieldsModel.update({_id: doc.id}, {}, function (err, doc) {
+		    		if (err) {
+                        res.send(500, err);
+		    			console.log(err);
+		    		} else {
+		    			console.log('Value pushed to DB');
+		    		}
+		    	});
+
     		}
     	});
     }
