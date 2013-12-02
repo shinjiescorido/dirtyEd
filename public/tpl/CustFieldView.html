@@ -1,6 +1,19 @@
 <div class="hero-unit" style="padding-bottom: 20px;">
     <div class="row-fluid" style="text-align: right;">
-    <div class="alert alert-success" style="text-align: left; display: none; visibility: hidden" id="info"></div>
+        <div style="text-align: left">
+            <h2>Basic Fields</h2>
+            <table class="table basics table-striped" width=100%>
+                <thead>
+                    <tr>
+                        <th width="20%">Label</th>
+                        <th width="10%">Type</th>
+                        <th width="20">Attribute</th>
+                        <th>Value(s)</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="alert alert-success" style="text-align: left; display: none; visibility: hidden" id="info"></div>
         <div style="form-actions">
             <button style="text-align: right;" class="btn btn-primary" id="clker"><i class="icon-plus"></i> Add Custom Field</button>
             <hr/>
@@ -9,7 +22,7 @@
             <form method="post" id="customFieldForm" role="form">
                 <div class="form-group control-group">
                     <label class="control-label" for="label">Label</label>
-                    <input type="text" class="form-control" placeholder="Label" name="lableParam" id="lableParam" value="Twitter Account">
+                    <input type="text" class="form-control" placeholder="Label" name="lableParam" id="lableParam">
                     <label class="control-label help-inline" for="label"></label>
                 </div>
                 <div class="form-group control-group">
@@ -29,7 +42,7 @@
                 </div>
                 <div class="form-group control-group" style="vertical-align: top">
                     <label class="control-label" for="label">Value(s)</label>
-                    <input type="text" class="form-control" placeholder="value" style="margin-bottom: 0px;" id="valxx" name="value" value="ChaddyChaddoy">
+                    <input type="text" class="form-control" placeholder="value" style="margin-bottom: 0px;" id="valxx" name="value" >
                     <button type="button" style="text-align: right; display: none; visbility:hidden;" class="btn" id="addbutn"><i class="icon-plus"></i>
                     </button>
                     <label class="control-label help-inline" for="label"></label>
@@ -46,6 +59,19 @@
                 <button type="submit" class="btn btn-primary" id="login">Submit</button>
             </form>
             <hr/>
+        </div>
+        <div style="text-align: left">
+            <h2>Custom Fields</h2>
+            <table class="table customs table-striped" width=100%>
+                <thead>
+                    <tr>
+                        <th width="20%">Label</th>
+                        <th width="10%">Type</th>
+                        <th width="20">Attribute</th>
+                        <th>Value(s)</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
     </div>
 </div>

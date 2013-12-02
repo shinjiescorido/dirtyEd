@@ -1,8 +1,9 @@
 module.exports = function(app, custom_fields) {
 	
 	app.get('/custom-fields', listFields);
-	app.get('/basic-fields', listBasicFields);
+	app.get('/basic-fields-only', listBasicFields);
 	app.post('/custom-fields', createField);
+	app.get('/custom-fields-only', listCustomFields);
 
 
 	//temp delete to remove test items
@@ -48,7 +49,7 @@ module.exports = function(app, custom_fields) {
 		});
 	}
 
-	//curl http://localhost:3000/basic-fields
+	//curl http://localhost:3000/basic-fields-only
 	function listBasicFields(req, res) {
 		var options = {};
 		if (req.query.skip) {
@@ -58,6 +59,26 @@ module.exports = function(app, custom_fields) {
 		   	options.limit = req.query.limit;
 		}
 		custom_fields.customFieldsModel.find({ isBasic : true}, null, options, function (err, docs) {
+		    if (err) {
+		    	//console.log(err);
+		    	res.send(500, err);
+		    } else {
+		    	res.send(200, docs);
+		    	console.log(docs);
+		    }
+		});
+	}
+
+	//curl http://localhost:3000/custom-fields-only
+	function listCustomFields(req, res) {
+		var options = {};
+		if (req.query.skip) {
+			options.skip = req.query.skip;
+		}
+		if (req.query.limit) {
+		   	options.limit = req.query.limit;
+		}
+		custom_fields.customFieldsModel.find({ isBasic : false}, null, options, function (err, docs) {
 		    if (err) {
 		    	//console.log(err);
 		    	res.send(500, err);

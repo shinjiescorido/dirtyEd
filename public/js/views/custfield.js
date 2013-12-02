@@ -31,6 +31,17 @@ function getIndex(text) {
     return id;
 }
 
+function getIndexText(index) {
+    var id = null;
+    for (var i = 0; i < dDown.length; i++) {
+        if (dDown[i].id == index) {
+            id = dDown[i].label
+            break;
+        }
+    }
+    return id;
+}
+
 function getIndexById(idx) {
     var id = null;
     for (var i = 0; i < dDown.length; i++) {
@@ -42,27 +53,100 @@ function getIndexById(idx) {
     return id;
 }
 
-directory.CustFieldModel = Backbone.Model.extend({
-    url: 'http://localhost:3000/custom-fields'
+directory.cfListView = Backbone.View.extend({
+
+    tagName: 'tbody',
+
+    className: 'customs',
+
+    render: function() {
+        this.$el.empty();
+        var firstProp;
+        if (this.model)
+            for (var key in this.model["attributes"]) {
+                if (this.model["attributes"].hasOwnProperty(key)) {
+                    this.$el.append(new directory.bfListItemView({
+                        model: this.model["attributes"][key]
+                    }).render().el);
+                }
+            }
+        return this;
+    }
 });
 
-directory.CustFieldsCollection = Backbone.Collection.extend({
-    model: directory.CustFieldModel,
-    url: 'http://localhost:3000/custom-fields'
+directory.cfListItemView = Backbone.View.extend({
+
+    tagName: "tr",
+
+    render: function() {
+        var data = _.clone(this.model);
+
+        data.newType = getIndexText(data.fieldType);
+        data.newValues = data.values.join(', ')
+        data.isPublicStr = data.isPublic ? "Public" : "Private"
+        data.isRequiredStr = data.isRequired ? "Required" : "Optional"
+        data.isEditableStr = data.isEditable ? "Editable" : "Permanent"
+
+        this.$el.html(this.template(data));
+        return this;
+    }
+
+});
+
+directory.bfListView = Backbone.View.extend({
+
+    tagName: 'tbody',
+
+    className: 'basics',
+
+    render: function() {
+        this.$el.empty();
+        var firstProp;
+        if (this.model)
+            for (var key in this.model["attributes"]) {
+                if (this.model["attributes"].hasOwnProperty(key)) {
+                    this.$el.append(new directory.bfListItemView({
+                        model: this.model["attributes"][key]
+                    }).render().el);
+                }
+            }
+        return this;
+    }
+});
+
+directory.bfListItemView = Backbone.View.extend({
+
+    tagName: "tr",
+
+    render: function() {
+        var data = _.clone(this.model);
+
+        data.newType = getIndexText(data.fieldType);
+        data.newValues = data.values.join(', ')
+        data.isPublicStr = data.isPublic ? "Public" : "Private"
+        data.isRequiredStr = data.isRequired ? "Required" : "Optional"
+        data.isEditableStr = data.isEditable ? "Editable" : "Permanent"
+
+        this.$el.html(this.template(data));
+        return this;
+    }
+
 });
 
 directory.CustFieldView = Backbone.View.extend({
 
     events: {
-        "click .ddb"                : "changedDown",
-        "click #addbutn"            : "addFields",
-        "click .remVal"             : "remFields",
-        "click #clker"              : "toggleHider",
+        "click .ddb": "changedDown",
+        "click #addbutn": "addFields",
+        "click .remVal": "remFields",
+        "click #clker": "toggleHider",
+        "click #login": "submiter",
         "submit #customFieldForm"   : "submiter"
     },
 
     render: function() {
         this.$el.html(this.template());
+
         for (var i = 0; i < dDown.length; i++) {
             if (i == 0) {
                 this.$el.find("#fieldTypeDDownBtn").html(dDown[i].label);
@@ -70,6 +154,17 @@ directory.CustFieldView = Backbone.View.extend({
             }
             this.$el.find("#fieldTypeDDown").append("<li class='ddb'><a>" + dDown[i].label + "</a></li>");
         };
+
+        if (this.model && this.model[0])
+            $(this.el).find(".basics").append(new directory.bfListView({
+                model: this.model[0]
+            }).render().el);
+
+        if (this.model && this.model[1])
+            $(this.el).find(".customs").append(new directory.cfListView({
+                model: this.model[1]
+            }).render().el);
+
         return this;
     },
 
@@ -96,8 +191,8 @@ directory.CustFieldView = Backbone.View.extend({
     addFields: function() {
         $("#addValues").append(
             "<div style=\"vertical-align: top\" class=\"newval\">" +
-            "     <input type=\"text\" class=\"form-control\" id=\"label\" placeholder=\"value\" name=\"value\" style=\"margin-bottom: 0px;\">" +
-            "     <button type=\"button\" style=\"text-align: right;\" class=\"btn remVal\"><i class=\"icon-minus\"></i>" +
+            "     <input type=\"text\" class=\"form-control\" id=\"label\" placeholder=\"value\" style=\"margin-bottom: 0px;\">" +
+            "     <button style=\"text-align: right;\" class=\"btn remVal\"><i class=\"icon-minus\"></i>" +
             "    </button>" +
             "</div>");
     },
@@ -115,8 +210,7 @@ directory.CustFieldView = Backbone.View.extend({
             $("#addHider").css('display', 'none').css('visibility', 'hidden');
     },
 
-    submiter: function(evt) {
-        evt.preventDefault();
+    submiter: function() {
         $("#info").css('display', 'none').css('visibility', 'hidden');
         var isValid = true;
         isValid = isValid & tz_err_inline("#lableParam", !$('#lableParam').val(), "Please fill up empty field.");
@@ -125,7 +219,7 @@ directory.CustFieldView = Backbone.View.extend({
 
         if (isValid) {
             $("#addHider").css('display', 'none').css('visibility', 'hidden');
-            //$("#lableParam").val("");
+            $("#lableParam").val("");
 
             for (var i = 0; i < dDown.length; i++) {
                 if (i == 0) {
@@ -134,7 +228,7 @@ directory.CustFieldView = Backbone.View.extend({
                 }
             };
 
-            //$("#valxx").val("");
+            $("#valxx").val("");
 
             //PERFORM SAVE HERE
             this.submitForm(evt);
@@ -142,6 +236,8 @@ directory.CustFieldView = Backbone.View.extend({
             $("#info").html("Successfully added new field.")
             $("#info").css('display', 'block').css('visibility', 'visible');
         }
+
+        return false;
     },
 
     submitForm: function(evt) {
