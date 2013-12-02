@@ -11,6 +11,8 @@ mongoose.connect(uri, function (err) {
 
 exports.mongoose = mongoose;
 
+var ObjectId = mongoose.Schema.Types.ObjectId;
+
 var customFieldsSchema = mongoose.Schema({
   label: { type: String, required: true },
   fieldType: { type: Number, required: true },
@@ -21,15 +23,29 @@ var customFieldsSchema = mongoose.Schema({
   isEditable: Boolean,
   isActive: Boolean,
   index: Number
+});
+
+var userSchema = mongoose.Schema({
+  field: [{ objectID: ObjectId, assignedValue: [String], requestedValue: [String] }],
+  isActive: Boolean
+});
+
+var notificationsSchema = mongoose.Schema({
+  sender: ObjectId,
+  toAll: Boolean,
+  receipent: ObjectId,
+  date: Date,
+  isActive: Boolean,
+  message: String
 })
 
-// var userSchema = mongoose.Schema({
-//   fieldID: Obj
-// })
+var CustomFields = mongoose.model('CustomFields', customFieldsSchema);
+exports.customFieldsModel = CustomFields;
 
-// var userSchema = mongoose.Schema
+var Users = mongoose.model('Users', userSchema);
+exports.Users = Users;
 
-var customFields = mongoose.model('CustomFields', customFieldsSchema);
-exports.customFieldsModel = customFields;
 
+var Notifications = mongoose.model('Notifications', notificationsSchema);
+exports.Notifications = Notifications;
 
