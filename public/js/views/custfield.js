@@ -65,7 +65,7 @@ directory.cfListView = Backbone.View.extend({
         if (this.model)
             for (var key in this.model["attributes"]) {
                 if (this.model["attributes"].hasOwnProperty(key)) {
-                    this.$el.append(new directory.bfListItemView({
+                    this.$el.append(new directory.cfListItemView({
                         model: this.model["attributes"][key]
                     }).render().el);
                 }
@@ -95,6 +95,10 @@ directory.cfListItemView = Backbone.View.extend({
 
 directory.bfListView = Backbone.View.extend({
 
+    events: {
+        "click #basicEditer": "basicEditer"
+    },
+
     tagName: 'tbody',
 
     className: 'basics',
@@ -111,6 +115,10 @@ directory.bfListView = Backbone.View.extend({
                 }
             }
         return this;
+    },
+
+    basicEditer: function(){
+        alert(1)
     }
 });
 
