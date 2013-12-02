@@ -42,14 +42,23 @@ function getIndexById(idx) {
     return id;
 }
 
+directory.CustFieldModel = Backbone.Model.extend({
+    url: 'http://localhost:3000/custom-fields'
+});
+
+directory.CustFieldsCollection = Backbone.Collection.extend({
+    model: directory.CustFieldModel,
+    url: 'http://localhost:3000/custom-fields'
+});
+
 directory.CustFieldView = Backbone.View.extend({
 
     events: {
-        "click .ddb": "changedDown",
-        "click #addbutn": "addFields",
-        "click .remVal": "remFields",
-        "click #clker": "toggleHider",
-        "click #login": "submiter"
+        "click .ddb"            : "changedDown",
+        "click #addbutn"        : "addFields",
+        "click .remVal"         : "remFields",
+        "click #clker"          : "toggleHider",
+        "submit #submitForm"    : "submiter"
     },
 
     render: function() {
@@ -87,8 +96,8 @@ directory.CustFieldView = Backbone.View.extend({
     addFields: function() {
         $("#addValues").append(
             "<div style=\"vertical-align: top\" class=\"newval\">" +
-            "     <input type=\"text\" class=\"form-control\" id=\"label\" placeholder=\"value\" style=\"margin-bottom: 0px;\">" +
-            "     <button style=\"text-align: right;\" class=\"btn remVal\"><i class=\"icon-minus\"></i>" +
+            "     <input type=\"text\" class=\"form-control\" id=\"label\" placeholder=\"value\" name=\"value\" style=\"margin-bottom: 0px;\">" +
+            "     <button type=\"button\" style=\"text-align: right;\" class=\"btn remVal\"><i class=\"icon-minus\"></i>" +
             "    </button>" +
             "</div>");
     },
@@ -106,7 +115,8 @@ directory.CustFieldView = Backbone.View.extend({
             $("#addHider").css('display', 'none').css('visibility', 'hidden');
     },
 
-    submiter: function() {
+    submiter: function(evt) {
+        evt.preventDefault();
         $("#info").css('display', 'none').css('visibility', 'hidden');
         var isValid = true;
         isValid = isValid & tz_err_inline("#lableParam", !$('#lableParam').val(), "Please fill up empty field.");
@@ -115,7 +125,7 @@ directory.CustFieldView = Backbone.View.extend({
 
         if (isValid) {
             $("#addHider").css('display', 'none').css('visibility', 'hidden');
-            $("#lableParam").val("");
+            //$("#lableParam").val("");
 
             for (var i = 0; i < dDown.length; i++) {
                 if (i == 0) {
@@ -124,14 +134,55 @@ directory.CustFieldView = Backbone.View.extend({
                 }
             };
 
-            $("#valxx").val("");
+            //$("#valxx").val("");
 
             //PERFORM SAVE HERE
+            this.submitForm(evt);
 
             $("#info").html("Successfully added new field.")
             $("#info").css('display', 'block').css('visibility', 'visible');
         }
+    },
 
-        return false;
+    submitForm: function(evt) {
+        var custFieldData   = JSON.stringify( this.getFormData( $('#submitForm') ) );
+        var customField     = new directory.CustFieldModel;
+
+        customField.set(JSON.parse(custFieldData));
+        customField.save();
+    },
+
+    getFormData: function(form) { 
+        var FormArray   = form.serializeArray(),
+            mappedData  = this.mapSerializedArray(FormArray),
+            data        = {};
+
+        var values      = $("input[name='value']").map(function() {
+            return $(this).val();
+        }).get()
+
+        data = {
+            label       : mappedData.lableParam,
+            fieldType   : 1,
+            values      : values,
+            isRequired  : this.toggledCheckbox('isRequired'),
+            isPublic    : this.toggledCheckbox('isPublic'),
+            isEditable  : this.toggledCheckbox('isEditable')
+        }
+
+        return data;
+    },
+
+    mapSerializedArray: function(array) {
+        var obj = {};
+
+        $.map(array, function(value, index) {
+            obj[value['name']] = value['value'];
+        });
+        return obj;
+    },
+
+    toggledCheckbox: function(btn) {
+        return $('button[name="'+ btn +'"]').hasClass('active') ? true : false;
     }
 });

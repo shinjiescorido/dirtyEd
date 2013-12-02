@@ -50,7 +50,7 @@ module.exports = function(app, custom_fields) {
     			console.log(err);
     		} else {
     			console.log('Added to db');
-    			custom_fields.customFieldsModel.update({_id: doc.id}, {$push: {values: req.body.value}}, function (err, doc) {
+    			custom_fields.customFieldsModel.update({_id: doc.id}, {}, function (err, doc) {
 		    		if (err) {
                         res.send(500, err);
 		    			console.log(err);
