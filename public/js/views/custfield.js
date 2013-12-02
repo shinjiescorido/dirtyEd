@@ -54,11 +54,11 @@ directory.CustFieldsCollection = Backbone.Collection.extend({
 directory.CustFieldView = Backbone.View.extend({
 
     events: {
-        "click .ddb"            : "changedDown",
-        "click #addbutn"        : "addFields",
-        "click .remVal"         : "remFields",
-        "click #clker"          : "toggleHider",
-        "submit #submitForm"    : "submiter"
+        "click .ddb"                : "changedDown",
+        "click #addbutn"            : "addFields",
+        "click .remVal"             : "remFields",
+        "click #clker"              : "toggleHider",
+        "submit #customFieldForm"   : "submiter"
     },
 
     render: function() {
@@ -145,7 +145,7 @@ directory.CustFieldView = Backbone.View.extend({
     },
 
     submitForm: function(evt) {
-        var custFieldData   = JSON.stringify( this.getFormData( $('#submitForm') ) );
+        var custFieldData   = JSON.stringify( this.getFormData( $('#customFieldForm') ) );
         var customField     = new directory.CustFieldModel;
 
         customField.set(JSON.parse(custFieldData));
