@@ -5,36 +5,38 @@ module.exports = function(app, user) {
 	// app.post('/add-user', addUser);
 
 	// temporary function to add user
-	// app.get('/add-user-temp', addusertemp);
+	app.get('/add-user-temp', addusertemp);
 
 
 
     //temp delete to remove test items
     app.delete('/profile/:id', deleteUser);
 
-    // app.get('/profile/:username', showProfile)
+    app.get('/profile/:username', showProfile)
 
 
     var custom_fields = require('../routes/custom_fields');
 
 
     function showProfile(req, res) {
-        // var username = req.params.username;
-        // var id;
-        // user.customFieldsModel.findOne({label: 'Username'}, function(err, doc) {
-        //     if (err) {
-        //         console.log(err);
-        //         res.send(500, err);
-        //     } else {
-        //         id = doc._id;
-        //         console.log(id);
-        //         user.Users.findOne({'field.objectID': id})
-        //     }
-        // });
+        var username = req.params.username;
+        var UsernameFieldLabel = "Username";
+        var id;
+        user.customFieldsModel.findOne({label: UsernameFieldLabel}, function(err, doc) {
+            if (err) {
+                console.log(err);
+                res.send(500, err);
+            } else {
+                id = doc._id;
+                user.Users.find({field: {$elemMatch: {objectID: id, assignedValue: username}}, isActive: 1}, null, function(error, employee) {
+                    res.send(200, employee);
+                    console.log(username + 'retrieved.');
+                });
+            }
+        });
     }
 
  	function listAllUsers(req, res) {
-
         var options = {};
         if (req.query.skip) {
             options.skip = req.query.skip;
@@ -61,11 +63,11 @@ module.exports = function(app, user) {
  							{"objectID": "5297d81b025a83e404000007", "assignedValue": ["Scrum Master"], "requestedValue":[""] },
  							{"objectID": "5297d822025a83e404000008", "assignedValue": ["rosana.ferolin@globalzeal.net"], "requestedValue":[""] },
  							{"objectID": "5297d829025a83e404000009", "assignedValue": [" "], "requestedValue":[""] },
-                            {"objectID": "5298224500fa11f955000002", "assignedValue": ["Sana.Ferolin"], "requestedValue":[""] },
- 							{"objectID": "5297d856025a83e40400000a", "assignedValue": ["Sana"], "requestedValue":[""] },
- 							{"objectID": "5297ef021dd16c491c000002", "assignedValue": ["Javascript","HTML","CSS"],"requestedValue":["Javascript","HTML"] },
+                            {"objectID": "52982cf6da4555da60000002", "assignedValue": ["Rosana.Ferolin2"], "requestedValue":[""] },
+ 							{"objectID": "5297d856025a83e40400000a", "assignedValue": ["Sana - Not Active"], "requestedValue":[""] },
+ 							{"objectID": "5297ef021dd16c491c000002", "assignedValue": ["Rosana.Ferolin"],"requestedValue":["Javascript","HTML"] },
  					     ],
- 				"isActive": 1
+ 				"isActive": 0
  			};
         user.Users.create(employees, function (err, doc) {
              if (err) {
@@ -77,7 +79,7 @@ module.exports = function(app, user) {
          });	
     }
 
-    //curl -X DELETE 'http://localhost:3000/profile/5296ac83b5a2a80336000001'
+    //curl -X DELETE 'http://localhost:3000/profile/[id]'
     function deleteUser (req, res) {
         var id = req.params.id;
         user.Users.findByIdAndRemove(id, function (err, doc) {
