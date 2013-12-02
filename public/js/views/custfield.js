@@ -140,10 +140,13 @@ directory.CustFieldView = Backbone.View.extend({
         "click #addbutn": "addFields",
         "click .remVal": "remFields",
         "click #clker": "toggleHider",
-        "click #login": "submiter"
+        "click #login": "submiter",
+        "submit #customFieldForm"   : "submiter"
     },
 
     render: function() {
+        this.$el.html(this.template());
+
         for (var i = 0; i < dDown.length; i++) {
             if (i == 0) {
                 this.$el.find("#fieldTypeDDownBtn").html(dDown[i].label);
@@ -151,14 +154,13 @@ directory.CustFieldView = Backbone.View.extend({
             }
             this.$el.find("#fieldTypeDDown").append("<li class='ddb'><a>" + dDown[i].label + "</a></li>");
         };
-        this.$el.html(this.template());
 
-        if (this.model[0])
+        if (this.model && this.model[0])
             $(this.el).find(".basics").append(new directory.bfListView({
                 model: this.model[0]
             }).render().el);
 
-        if (this.model[1])
+        if (this.model && this.model[1])
             $(this.el).find(".customs").append(new directory.cfListView({
                 model: this.model[1]
             }).render().el);
@@ -229,11 +231,54 @@ directory.CustFieldView = Backbone.View.extend({
             $("#valxx").val("");
 
             //PERFORM SAVE HERE
+            this.submitForm(evt);
 
             $("#info").html("Successfully added new field.")
             $("#info").css('display', 'block').css('visibility', 'visible');
         }
 
         return false;
+    },
+
+    submitForm: function(evt) {
+        var custFieldData   = JSON.stringify( this.getFormData( $('#customFieldForm') ) );
+        var customField     = new directory.CustFieldModel;
+
+        customField.set(JSON.parse(custFieldData));
+        customField.save();
+    },
+
+    getFormData: function(form) { 
+        var FormArray   = form.serializeArray(),
+            mappedData  = this.mapSerializedArray(FormArray),
+            data        = {};
+
+        var values      = $("input[name='value']").map(function() {
+            return $(this).val();
+        }).get()
+
+        data = {
+            label       : mappedData.lableParam,
+            fieldType   : 1,
+            values      : values,
+            isRequired  : this.toggledCheckbox('isRequired'),
+            isPublic    : this.toggledCheckbox('isPublic'),
+            isEditable  : this.toggledCheckbox('isEditable')
+        }
+
+        return data;
+    },
+
+    mapSerializedArray: function(array) {
+        var obj = {};
+
+        $.map(array, function(value, index) {
+            obj[value['name']] = value['value'];
+        });
+        return obj;
+    },
+
+    toggledCheckbox: function(btn) {
+        return $('button[name="'+ btn +'"]').hasClass('active') ? true : false;
     }
 });
