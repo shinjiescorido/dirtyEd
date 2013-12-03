@@ -1,6 +1,8 @@
 <div class="hero-unit" style="padding-bottom: 20px;">
     <div class="row-fluid" style="text-align: right;">
         <div style="text-align: left">
+            <div class="alert alert-success" style="text-align: left; display: none; visibility: hidden" id="info-basic"></div>
+            <div class="alert alert-error" style="text-align: left; display: none; visibility: hidden" id="error-basic"></div>
             <h2>Basic Fields</h2>
             <table class="table basics table-striped" width=100%>
                 <thead>
@@ -9,11 +11,13 @@
                         <th width="10%">Type</th>
                         <th width="20">Attribute</th>
                         <th>Value(s)</th>
+                        <th width="5%">&nbsp;</th>
                     </tr>
                 </thead>
             </table>
         </div>
         <div class="alert alert-success" style="text-align: left; display: none; visibility: hidden" id="info"></div>
+        <div class="alert alert-error" style="text-align: left; display: none; visibility: hidden" id="error"></div>
         <div style="form-actions">
             <button style="text-align: right;" class="btn btn-primary" id="clker"><i class="icon-plus"></i> Add Custom Field</button>
             <hr/>
@@ -61,6 +65,8 @@
             <hr/>
         </div>
         <div style="text-align: left">
+            <div class="alert alert-success" style="text-align: left; display: none; visibility: hidden" id="info-cust"></div>
+            <div class="alert alert-error" style="text-align: left; display: none; visibility: hidden" id="err-cust"></div>
             <h2>Custom Fields</h2>
             <table class="table customs table-striped" width=100%>
                 <thead>
@@ -69,9 +75,15 @@
                         <th width="10%">Type</th>
                         <th width="20">Attribute</th>
                         <th>Value(s)</th>
+                        <th width="5%">&nbsp;</th>
                     </tr>
                 </thead>
             </table>
         </div>
     </div>
+</div>
+<div id="template_001" style="display: none; visibility: hidden;">
+    <input name="val" value="" type="text">
+    <button class="btn btn-default" style="margin-bottom: 10px;" onclick="$(this).parent().remove()"><i class="icon-minus"></i>
+    </button>
 </div>

@@ -65,7 +65,7 @@ directory.cfListView = Backbone.View.extend({
         if (this.model)
             for (var key in this.model["attributes"]) {
                 if (this.model["attributes"].hasOwnProperty(key)) {
-                    this.$el.append(new directory.bfListItemView({
+                    this.$el.append(new directory.cfListItemView({
                         model: this.model["attributes"][key]
                     }).render().el);
                 }
@@ -88,6 +88,31 @@ directory.cfListItemView = Backbone.View.extend({
         data.isEditableStr = data.isEditable ? "Editable" : "Permanent"
 
         this.$el.html(this.template(data));
+
+        this.$el.find('#delcust' + data._id).confirmation({
+            "animation": "true",
+            "singleton": "true",
+            "title": "Do you really want to delete this field?",
+            "popout": "true",
+            onConfirm: function() {
+
+                alert("edit directory.cfListItemView.render of custfield.js");
+                alert("data = " + data._id);
+                $(this).closest("tr").remove();
+
+                //perform delete here
+
+                //Call below for success
+                //$("#info-cust").html("success message")
+                //$("#info-cust").css('display', 'block').css('visibility', 'visible');
+
+                //Call below for error
+                //$("#err-cust").html("error message")
+                //$("#err-cust").css('display', 'block').css('visibility', 'visible');
+
+                return false;
+            }
+        });
         return this;
     }
 
@@ -116,6 +141,12 @@ directory.bfListView = Backbone.View.extend({
 
 directory.bfListItemView = Backbone.View.extend({
 
+    events: {
+        "click #basicEditer": "basicEditer",
+        "click #basicCanceller": "basicCanceller",
+        "click #basicSaver": "basicSaver"
+    },
+
     tagName: "tr",
 
     render: function() {
@@ -129,17 +160,53 @@ directory.bfListItemView = Backbone.View.extend({
 
         this.$el.html(this.template(data));
         return this;
+    },
+
+    basicEditer: function(ev) {
+        $(ev.target).closest("td").prev().html(new directory.bfEditItemView({
+            model: this.model
+        }).render().el);
+        $(ev.target).closest("td").html("<div class=\"btn-group\"><button class=\"btn btn-primary\" id=\"basicSaver\">Save</button><button class=\"btn btn-default\" id=\"basicCanceller\">Cancel</button><div>");
+    },
+
+    basicCanceller: function(ev) {
+        $(ev.target).closest("td").prev().html(new directory.bfEditViewItemView({
+            model: this.model
+        }).render().el);
+        $(ev.target).closest("td").html("<button class=\"btn btn-default\" id=\"basicEditer\">edit</button>");
+    },
+
+    basicSaver: function(ev) {
+        alert("edit directory.bfListItemView.basicSaver of custfield.js");
+        alert("data = " + JSON.stringify($(ev.target).closest("tr").find("input").serializeArray()));
+
+        //Call below for success
+        //$("#info-basic").html("success message")
+        //$("#info-basic").css('display', 'block').css('visibility', 'visible');
+
+        //Call below for error
+        //$("#err-basic").html("error message")
+        //$("#err-basic").css('display', 'block').css('visibility', 'visible');
     }
-
 });
 
-directory.CustFieldModel = Backbone.Model.extend({
-    url: 'http://localhost:3000/custom-fields'
+directory.bfEditItemView = Backbone.View.extend({
+    render: function() {
+        var data = _.clone(this.model);
+        data.newValues = data.values.join(', ');
+        data.isMult = getIndexById(data.fieldType).mult;
+        this.$el.html(this.template(data));
+        return this;
+    }
 });
 
-directory.CustFieldsCollection = Backbone.Collection.extend({
-    model: directory.CustFieldModel,
-    url: 'http://localhost:3000/custom-fields'
+directory.bfEditViewItemView = Backbone.View.extend({
+    render: function() {
+        var data = _.clone(this.model);
+        data.newValues = data.values.join(', ');
+        this.$el.html(this.template(data));
+        return this;
+    }
 });
 
 directory.CustFieldView = Backbone.View.extend({
@@ -150,7 +217,7 @@ directory.CustFieldView = Backbone.View.extend({
         "click .remVal": "remFields",
         "click #clker": "toggleHider",
         "click #login": "submiter",
-        "submit #customFieldForm"   : "submiter"
+        "submit #customFieldForm": "submiter"
     },
 
     render: function() {
@@ -244,36 +311,37 @@ directory.CustFieldView = Backbone.View.extend({
 
             $("#info").html("Successfully added new field.")
             $("#info").css('display', 'block').css('visibility', 'visible');
+            $("#error").html("Problems with the operation")
+            $("#error").css('display', 'block').css('visibility', 'visible');
         }
 
         return false;
     },
 
     submitForm: function(evt) {
-        evt.preventDefault();
-        var custFieldData   = JSON.stringify( this.getFormData( $('#customFieldForm') ) );
-        var customField     = new directory.CustFieldModel;
+        var custFieldData = JSON.stringify(this.getFormData($('#customFieldForm')));
+        var customField = new directory.CustFieldModel;
 
         customField.set(JSON.parse(custFieldData));
         customField.save();
     },
 
-    getFormData: function(form) { 
-        var FormArray   = form.serializeArray(),
-            mappedData  = this.mapSerializedArray(FormArray),
-            data        = {};
+    getFormData: function(form) {
+        var FormArray = form.serializeArray(),
+            mappedData = this.mapSerializedArray(FormArray),
+            data = {};
 
-        var values      = $("input[name='value']").map(function() {
+        var values = $("input[name='value']").map(function() {
             return $(this).val();
         }).get()
 
         data = {
-            label       : mappedData.lableParam,
-            fieldType   : mappedData.fieldType,
-            values      : values,
-            isRequired  : this.toggledCheckbox('isRequired'),
-            isPublic    : this.toggledCheckbox('isPublic'),
-            isEditable  : this.toggledCheckbox('isEditable')
+            label: mappedData.lableParam,
+            fieldType: mappedData.fieldType,
+            values: values,
+            isRequired: this.toggledCheckbox('isRequired'),
+            isPublic: this.toggledCheckbox('isPublic'),
+            isEditable: this.toggledCheckbox('isEditable')
         }
 
         return data;
@@ -289,6 +357,6 @@ directory.CustFieldView = Backbone.View.extend({
     },
 
     toggledCheckbox: function(btn) {
-        return $('button[name="'+ btn +'"]').hasClass('active') ? true : false;
+        return $('button[name="' + btn + '"]').hasClass('active') ? true : false;
     }
 });

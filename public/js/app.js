@@ -57,12 +57,11 @@ function tz_err_inline(sel, val, msg) {
 directory.Router = Backbone.Router.extend({
 
     routes: {
-        ""                  : "home",
-        "contact"           : "contact",
-        "employees/:id"     : "employeeDetails",
-        "login"             : "login",
-        "custfield"         : "custfield",
-        "createAccount"     : "createAccount"
+        "": "home",
+        "contact": "contact",
+        "employees/:id": "employeeDetails",
+        "login": "login",
+        "custfield": "custfield"
     },
 
     initialize: function() {
@@ -196,7 +195,7 @@ directory.Router = Backbone.Router.extend({
 });
 
 $(document).on("ready", function() {
-    directory.loadTemplates(["HomeView", "ContactView", "ShellView", "EmployeeView", "EmployeeSummaryView", "EmployeeListItemView", "LoginView", "CustFieldView", "bfListItemView", "cfListItemView", "CreateAccountView", "FormFieldListItemView"],
+    directory.loadTemplates(["HomeView", "ContactView", "ShellView", "EmployeeView", "EmployeeSummaryView", "EmployeeListItemView", "LoginView", "CustFieldView", "bfListItemView", "cfListItemView", "bfEditItemView", "bfEditViewItemView"],
         function() {
             directory.router = new directory.Router();
             Backbone.history.start();

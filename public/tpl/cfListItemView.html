@@ -1,12 +1,17 @@
 <td>
-<%= label %>
+    <%=label %>
 </td>
 <td>
-<%= newType %>
+    <%=newType %>
 </td>
 <td>
-<%= isPublicStr %>&nbsp;<%= isRequiredStr %>&nbsp;<%= isEditableStr %>
+    <%=isPublicStr %>&nbsp;
+        <%=isRequiredStr %>&nbsp;
+            <%=isEditableStr %>
 </td>
 <td>
-<%= newValues %>
+    <%=newValues %>
+</td>
+<td style="text-align: right">
+    <a class="btn btn-danger" data-toggle="confirmation" id=<%= "'delcust" + _id + "'"%> >delete</a>
 </td>
