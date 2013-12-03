@@ -1,0 +1,55 @@
+<td><%= label %>:</td>
+<td>
+
+<%
+  switch(fieldType)
+  {
+    case 1:
+%>
+  <input type="text" name="<%= fieldName %>" placeholder="<%= label %>" />
+<%
+      break;
+      
+    case 2:
+%>
+  <textarea name="<%= fieldName %>" class="field span8" rows="5"></textarea>
+<%
+      break;
+      
+    case 3:
+%>
+  <select name="<%= fieldName %>">
+  <%
+    values.forEach(function(value) {
+  %>
+    <option value="<%= value %>"><%= value %></option>
+  <%
+    });
+  %>
+  </select>
+<%
+      break;
+      
+    case 4:
+%>
+  <label class="radio inline control-label">
+    <input type="radio" name="<%= fieldName %>" id="male" />
+    Male
+  </label>
+<%
+      break;
+      
+    case 5:
+      values.forEach(function(value) {
+%>
+  <label class="checkbox">
+    <input type="checkbox" name="<%= fieldName %>" value="<%= value %>" />
+    <%= value %>
+  </label>
+<%
+      });
+      break;
+  }
+%>
+
+</td>
