@@ -286,6 +286,8 @@ directory.CustFieldView = Backbone.View.extend({
 
             $("#info").html("Successfully added new field.")
             $("#info").css('display', 'block').css('visibility', 'visible');
+            $("#error").html("Problems with the operation")
+            $("#error").css('display', 'block').css('visibility', 'visible');
         }
 
         return false;

@@ -1,0 +1,21 @@
+{
+    "apis": [{
+        "path": "/wordList.{format}",
+        "description": ""
+    }, {
+        "path": "/wordLists.{format}",
+        "description": ""
+    }, {
+        "path": "/account.{format}",
+        "description": ""
+    }, {
+        "path": "/word.{format}",
+        "description": ""
+    }, {
+        "path": "/words.{format}",
+        "description": ""
+    }],
+    "basePath": "http://api.wordnik.com/v4",
+    "apiVersion": "4.0",
+    "swaggerVersion": "1.0"
+}
