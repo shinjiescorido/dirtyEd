@@ -2,23 +2,25 @@
 <td>
 
 <%
+  var required = isRequired ? 'required' : '';
+
   switch(fieldType)
   {
     case 1:
 %>
-  <input type="text" name="<%= fieldName %>" placeholder="<%= label %>" />
+  <input type="text" name="<%= fieldName %>" placeholder="<%= label %>" class="<%= required %>" />
 <%
       break;
       
     case 2:
 %>
-  <textarea name="<%= fieldName %>" class="field span8" rows="5"></textarea>
+  <textarea name="<%= fieldName %>" class="field span8 <%= required %>" rows="5"></textarea>
 <%
       break;
       
     case 3:
 %>
-  <select name="<%= fieldName %>">
+  <select name="<%= fieldName %>" class="<%= required %>">
   <%
     values.forEach(function(value) {
   %>
@@ -33,7 +35,7 @@
     case 4:
 %>
   <label class="radio inline control-label">
-    <input type="radio" name="<%= fieldName %>" id="male" />
+    <input type="radio" name="<%= fieldName %>" id="male" class="<%= required %>" />
     Male
   </label>
 <%
@@ -43,7 +45,7 @@
       values.forEach(function(value) {
 %>
   <label class="checkbox">
-    <input type="checkbox" name="<%= fieldName %>" value="<%= value %>" />
+    <input type="checkbox" name="<%= fieldName %>" value="<%= value %>" class="<%= required %>" />
     <%= value %>
   </label>
 <%
@@ -51,5 +53,7 @@
       break;
   }
 %>
+  <br />
 
+  <span class="help-block hidden"></span>
 </td>

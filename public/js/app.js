@@ -61,7 +61,8 @@ directory.Router = Backbone.Router.extend({
         "contact": "contact",
         "employees/:id": "employeeDetails",
         "login": "login",
-        "custfield": "custfield"
+        "custfield": "custfield",
+        "createAccount": "createAccount"
     },
 
     initialize: function() {
@@ -195,7 +196,7 @@ directory.Router = Backbone.Router.extend({
 });
 
 $(document).on("ready", function() {
-    directory.loadTemplates(["HomeView", "ContactView", "ShellView", "EmployeeView", "EmployeeSummaryView", "EmployeeListItemView", "LoginView", "CustFieldView", "bfListItemView", "cfListItemView", "bfEditItemView", "bfEditViewItemView"],
+    directory.loadTemplates(["HomeView", "ContactView", "ShellView", "EmployeeView", "EmployeeSummaryView", "EmployeeListItemView", "LoginView", "CustFieldView", "bfListItemView", "cfListItemView", "bfEditItemView", "bfEditViewItemView", "CreateAccountView", "FormFieldListItemView"],
         function() {
             directory.router = new directory.Router();
             Backbone.history.start();

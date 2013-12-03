@@ -15,8 +15,8 @@ directory.CreateAccountView = Backbone.View.extend({
       this.collection.custom.on('add', this.showAdded, this);
       this.collection.custom.on('change', this.showChanges, this);
 
-      this.basicListView    = new directory.FormFieldListView({ collection: this.collection.basic, className: 'basic' });
-      this.customListView   = new directory.FormFieldListView({ collection: this.collection.custom, className: 'custom' });
+      this.basicListView   = new directory.FormFieldListView({ collection: this.collection.basic, className: 'basic' });
+      this.customListView  = new directory.FormFieldListView({ collection: this.collection.custom, className: 'custom' });
 
     }
     
@@ -26,8 +26,6 @@ directory.CreateAccountView = Backbone.View.extend({
     this.$el.html(this.template());
 
     if(this.collection) {
-      // console.log(this.basicListView.render().el);
-      // this.basicListView.render().el;
       $('.table-basic', this.el).append(this.basicListView.render().el);
       $('.table-custom', this.el).append(this.customListView.render().el);
     }
@@ -50,7 +48,44 @@ directory.CreateAccountView = Backbone.View.extend({
   submit: function(e) {
     e.preventDefault();
 
-    this.getFormData($("#createAccount"));
+    var form = $('#createAccount');
+
+    if(this.hasEmptyFields()) {
+      this.showErrorMsg(this.getEmptyFields());
+    }
+  },
+
+  hasEmptyFields: function() {
+    var emptyFields = [];
+
+    $('.required').each(function(){
+      var _this = $(this);
+      if(!_this.val()) {
+        emptyFields.push(_this.attr('name'));
+      }
+    });
+
+    return (emptyFields.length) ? emptyFields : false;
+  },
+
+  getEmptyFields: function() {
+    var emptyFields = [];
+
+    $('.required').each(function() {
+      var _this = $(this);
+      if(!_this.val()) {
+        emptyFields.push(_this.attr('name'));
+      }
+    });
+    return emptyFields;
+  },
+
+  showErrorMsg: function(fields) {
+    $.each(fields, function(index, value) {
+
+      $('[name="'+ value +'"]').css('border', '1px solid #b94a48');
+
+    });
   },
 
   getFormData: function(form) {

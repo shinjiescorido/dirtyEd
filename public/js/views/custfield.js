@@ -209,6 +209,15 @@ directory.bfEditViewItemView = Backbone.View.extend({
     }
 });
 
+directory.CustFieldModel = Backbone.Model.extend({
+    url: 'http://localhost:3000/custom-fields'
+});
+
+directory.CustFieldsCollection = Backbone.Collection.extend({
+    model: directory.CustFieldModel,
+    url: 'http://localhost:3000/custom-fields'
+});
+
 directory.CustFieldView = Backbone.View.extend({
 
     events: {
@@ -319,6 +328,7 @@ directory.CustFieldView = Backbone.View.extend({
     },
 
     submitForm: function(evt) {
+        evt.preventDefault();
         var custFieldData = JSON.stringify(this.getFormData($('#customFieldForm')));
         var customField = new directory.CustFieldModel;
 
