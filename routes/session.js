@@ -1,6 +1,7 @@
 /**
     Session.js
-    @Description  Session Management for login and logout operation
+    Description:
+        Session Management for login and logout operation
 
     Revision History
     ------------------------------------------------------------------------------------------
@@ -14,15 +15,19 @@
 
 module.exports = function(app, user) {
   app.post('/login', login);
+  app.delete('/logout', logout);
 
+  /*
+    Clear all user sessions.
+  */
   function logout(req, res) {
     if (req.session) {
       req.session.destroy();
     }
-
+    //redirect somewhere
   }
 
-  //curl http://localhost:3000/info
+  //curl http://localhost:3000/login?username=Rosana.Ferolin&password=ladyinblack
   function login(req, res) {
     var options = {};
     if (req.query.skip) {
