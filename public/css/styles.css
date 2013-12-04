@@ -23,3 +23,8 @@ body {
 .paddBlock {
     padding-right: .5em;
 }
+
+.list-item span {
+    font-size: 13px;
+}
+

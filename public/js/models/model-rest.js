@@ -1,6 +1,6 @@
 directory.Employee = Backbone.Model.extend({
 
-    urlRoot:"/employees",
+    urlRoot:"/profiles",
 
     initialize:function () {
         this.reports = new directory.EmployeeCollection();
@@ -12,7 +12,7 @@ directory.Employee = Backbone.Model.extend({
 directory.EmployeeCollection = Backbone.Collection.extend({
 
     model: directory.Employee,
-    url:"/employees"
+    url:"/profiles"
 
 });
 
