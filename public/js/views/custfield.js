@@ -88,6 +88,31 @@ directory.cfListItemView = Backbone.View.extend({
         data.isEditableStr = data.isEditable ? "Editable" : "Permanent"
 
         this.$el.html(this.template(data));
+
+        this.$el.find('#delcust' + data._id).confirmation({
+            "animation": "true",
+            "singleton": "true",
+            "title": "Do you really want to delete this field?",
+            "popout": "true",
+            onConfirm: function() {
+
+                alert("edit directory.cfListItemView.render of custfield.js");
+                alert("data = " + data._id);
+                $(this).closest("tr").remove();
+
+                //perform delete here
+
+                //Call below for success
+                //$("#info-cust").html("success message")
+                //$("#info-cust").css('display', 'block').css('visibility', 'visible');
+
+                //Call below for error
+                //$("#err-cust").html("error message")
+                //$("#err-cust").css('display', 'block').css('visibility', 'visible');
+
+                return false;
+            }
+        });
         return this;
     }
 
@@ -119,7 +144,7 @@ directory.bfListItemView = Backbone.View.extend({
     events: {
         "click #basicEditer": "basicEditer",
         "click #basicCanceller": "basicCanceller",
-        "click #basicSaver" : "basicSaver"
+        "click #basicSaver": "basicSaver"
     },
 
     tagName: "tr",
@@ -144,14 +169,14 @@ directory.bfListItemView = Backbone.View.extend({
         $(ev.target).closest("td").html("<div class=\"btn-group\"><button class=\"btn btn-primary\" id=\"basicSaver\">Save</button><button class=\"btn btn-default\" id=\"basicCanceller\">Cancel</button><div>");
     },
 
-    basicCanceller: function(ev){
+    basicCanceller: function(ev) {
         $(ev.target).closest("td").prev().html(new directory.bfEditViewItemView({
             model: this.model
         }).render().el);
         $(ev.target).closest("td").html("<button class=\"btn btn-default\" id=\"basicEditer\">edit</button>");
     },
 
-    basicSaver: function(ev){
+    basicSaver: function(ev) {
         alert("edit directory.bfListItemView.basicSaver of custfield.js");
         alert("data = " + JSON.stringify($(ev.target).closest("tr").find("input").serializeArray()));
 
@@ -182,6 +207,15 @@ directory.bfEditViewItemView = Backbone.View.extend({
         this.$el.html(this.template(data));
         return this;
     }
+});
+
+directory.CustFieldModel = Backbone.Model.extend({
+    url: 'http://localhost:3000/custom-fields'
+});
+
+directory.CustFieldsCollection = Backbone.Collection.extend({
+    model: directory.CustFieldModel,
+    url: 'http://localhost:3000/custom-fields'
 });
 
 directory.CustFieldView = Backbone.View.extend({
@@ -294,6 +328,7 @@ directory.CustFieldView = Backbone.View.extend({
     },
 
     submitForm: function(evt) {
+        evt.preventDefault();
         var custFieldData = JSON.stringify(this.getFormData($('#customFieldForm')));
         var customField = new directory.CustFieldModel;
 
