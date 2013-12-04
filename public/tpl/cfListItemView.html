@@ -5,13 +5,14 @@
     <%=newType %>
 </td>
 <td>
-    <%=isPublicStr %>&nbsp;
-        <%=isRequiredStr %>&nbsp;
-            <%=isEditableStr %>
+    <%= isPublicStr + " " + isRequiredStr + " " +isEditableStr %>
 </td>
-<td>
+<td class="valx">
     <%=newValues %>
 </td>
 <td style="text-align: right">
-    <a class="btn btn-danger" data-toggle="confirmation" id=<%= "'delcust" + _id + "'"%> >delete</a>
+    <a class="btn btn-primary isedit" style="display: none; visibility: hidden" id="custSaver">save</a>
+    <a class="btn btn-default isedit" style="display: none; visibility: hidden" id="custCanceller">cancel</a>
+    <a class="btn btn-default thisedit" id="custEditer">edit</a>
+    <a class="btn btn-danger" data-toggle="confirmation" id=<%="'delcust" + _id + "'"%> >delete</a>
 </td>
