@@ -61,7 +61,8 @@ directory.Router = Backbone.Router.extend({
         "contact": "contact",
         "employees/:id": "employeeDetails",
         "login": "login",
-        "custfield": "custfield"
+        "custfield": "custfield",
+        "createAccount": "createAccount"
     },
 
     initialize: function() {
@@ -105,6 +106,38 @@ directory.Router = Backbone.Router.extend({
         }
         this.$content.html(directory.custFieldView.el);
         directory.shellView.selectMenuItem('cust-menu');
+    },
+
+    createAccount: function() {
+        var basicFields     = new directory.BasicField,
+            customFields    = new directory.CustomField,
+            self            = this;
+
+        basicFields.fetch({
+            success: function(basicDocs) {
+
+                customFields.fetch({
+                    success: function(customDocs) {
+                        self.$content.html(new directory.CreateAccountView({
+                            collection: {
+                                basic   : basicDocs,
+                                custom  : customDocs
+                            }
+                        }).render().el);
+                    }
+                });
+            }
+        });
+
+        if (!directory.createAccountView) {
+            directory.createAccountView = new directory.CreateAccountView();
+            directory.createAccountView.render();
+        } else {
+            console.log('reusing home view');
+            directory.createAccountView.delegateEvents(); // delegate events when the view is recycled
+        }
+        this.$content.html(directory.createAccountView.el);
+        directory.shellView.selectMenuItem('createAccount-menu');
     },
 
     employeeDetails: function(id) {
@@ -179,7 +212,9 @@ $(document).on("ready", function() {
             "cfEditItemView",
             "cfEditItemViewAttr",
             "cfEditItemViewType",
-            "cfEditItemViewLbl"
+            "cfEditItemViewLbl",
+            "CreateAccountView",
+            "FormFieldListItemView"
         ],
         function() {
             directory.router = new directory.Router();

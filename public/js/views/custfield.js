@@ -331,17 +331,40 @@ directory.bfListItemView = Backbone.View.extend({
     },
 
     basicSaver: function(ev) {
-        alert("edit directory.bfListItemView.basicSaver of custfield.js");
-        alert("data = " + JSON.stringify($(ev.target).closest("tr").find("input").serializeArray()));
 
-        //Call below for success
-        //$("#info-basic").html("success message")
-        //$("#info-basic").css('display', 'block').css('visibility', 'visible');
 
-        //Call below for error
-        //$("#err-basic").html("error message")
-        //$("#err-basic").css('display', 'block').css('visibility', 'visible');
-    }
+     //  get the id first
+        var tId = $(ev.target).closest("tr").find("input").serializeArray()[0].value;
+   
+    //   store all values but delete the first element since it is from the ID field
+        sdata = $(ev.target).closest("tr").find("input").serializeArray();
+        sdata.shift();
+        alert(JSON.stringify(sdata));
+    //   declare our model
+        var cf =  new directory.CustFieldModel;
+     
+     // set the route url 
+        cf.url = cf.url + "/" + tId;
+
+        var cfData = new Array();
+
+        sdata.forEach(function(entry) {
+                cfData.push(entry.value);
+             
+        });
+
+                    cf.save({values:cfData},{
+                        success: function(model, response) {
+                            $("#info-basic").html(response);
+                            $("#info-basic").show();
+
+                        },
+                        error: function(model, response) {
+                            $("#err-basic").html(response);
+                            $("#err-basic").show();
+                        }
+                    });
+         }
 });
 
 directory.bfEditItemView = Backbone.View.extend({
@@ -361,6 +384,15 @@ directory.bfEditViewItemView = Backbone.View.extend({
         this.$el.html(this.template(data));
         return this;
     }
+});
+
+directory.CustFieldModel = Backbone.Model.extend({
+    url: 'http://localhost:3000/custom-fields'
+});
+
+directory.CustFieldsCollection = Backbone.Collection.extend({
+    model: directory.CustFieldModel,
+    url: 'http://localhost:3000/custom-fields'
 });
 
 directory.CustFieldView = Backbone.View.extend({
@@ -473,6 +505,7 @@ directory.CustFieldView = Backbone.View.extend({
     },
 
     submitForm: function(evt) {
+        evt.preventDefault();
         var custFieldData = JSON.stringify(this.getFormData($('#customFieldForm')));
         var customField = new directory.CustFieldModel;
 
