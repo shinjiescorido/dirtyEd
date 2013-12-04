@@ -183,13 +183,13 @@ directory.cfListItemView = Backbone.View.extend({
         var lbl = par.find('#lableParam');
         var isValid = tz_err_inline(lbl, !(lbl.val().length > 0), "Please fill up empty field.")
 
-        if(getIndexById(par.find('#fieldTypeDDownId').val()).mult == 1){
+        if (getIndexById(par.find('#fieldTypeDDownId').val()).mult == 1) {
             var val = par.find('#valyy');
             isValid = tz_err_inline(val, !(val.val().length > 0), "Please fill up empty field.") && isValid
             alert(isValid)
         }
 
-        if(isValid){
+        if (isValid) {
             alert("edit directory.cfListItemView.custSaver of custfield.js");
             alert("data = " + JSON.stringify($(ev.target).closest('tr').find('input').serializeArray()));
 
@@ -297,8 +297,8 @@ directory.bfListItemView = Backbone.View.extend({
 
     events: {
         "click #basicEditer": "basicEditer",
-        "click #basicCanceller": "basicCanceller",
-        "click #basicSaver": "basicSaver"
+        "click #basicCanceller": "basicCanceller" //,
+        //"click #basicSaver": "basicSaver"
     },
 
     tagName: "tr",
@@ -313,14 +313,69 @@ directory.bfListItemView = Backbone.View.extend({
         data.isEditableStr = data.isEditable ? "Editable" : "Permanent"
 
         this.$el.html(this.template(data));
+
         return this;
     },
 
     basicEditer: function(ev) {
-        $(ev.target).closest("td").prev().html(new directory.bfEditItemView({
-            model: this.model
+        var par = $(ev.target).closest("td");
+        var elm = $(this.el);
+        var innerModel = this.model;
+
+        par.closest("td").prev().html(new directory.bfEditItemView({
+            model: innerModel
         }).render().el);
-        $(ev.target).closest("td").html("<button class=\"btn btn-primary\" id=\"basicSaver\">save</button><button class=\"btn btn-default\" id=\"basicCanceller\">cancel</button>");
+        par.closest("td").html("<button class=\"btn btn-primary saveBast" + innerModel._id + "\" id=\"basicSaver\">save</button><button class=\"btn btn-default\" id=\"basicCanceller\">cancel</button>");
+
+        par.closest("td").find('.saveBast' + innerModel._id).confirmation({
+            "animation": "true",
+            "singleton": "true",
+            "title": "Do you really want to save changes?",
+            "popout": "true",
+            onConfirm: function() {
+
+                //  get the id first
+                var tId = par.closest("tr").find("input").serializeArray()[0].value;
+
+                //   store all values but delete the first element since it is from the ID field
+                sdata = par.closest("tr").find("input").serializeArray();
+                sdata.shift();
+                //   declare our model
+                var cf = new directory.CustFieldModel;
+
+                // set the route url 
+                cf.url = cf.url + "/" + tId;
+
+                var cfData = new Array();
+
+                sdata.forEach(function(entry) {
+                    cfData.push(entry.value);
+                });
+
+                cf.save({
+                    values: cfData
+                }, {
+                    success: function(model, response) {
+                        //$("#info-basic").html("");
+                        //$("#info-basic").css('display', 'block').css('visibility', 'visible');
+                        //its from a trusted source
+                        var modded = eval("(" + JSON.stringify(model) + ")");
+
+                        innerModel.values = modded.values
+
+                        par.closest("tr").replaceWith(new directory.bfListItemView({
+                            model: innerModel
+                        }).render().el);
+                    },
+                    error: function(model, response) {
+                        $("#err-basic").html(response);
+                        $("#err-basic").css('display', 'block').css('visibility', 'visible');
+                    }
+                });
+
+                return false;
+            }
+        });
     },
 
     basicCanceller: function(ev) {
@@ -330,41 +385,7 @@ directory.bfListItemView = Backbone.View.extend({
         $(ev.target).closest("td").html("<button class=\"btn btn-default\" id=\"basicEditer\">edit</button>");
     },
 
-    basicSaver: function(ev) {
-
-
-     //  get the id first
-        var tId = $(ev.target).closest("tr").find("input").serializeArray()[0].value;
-   
-    //   store all values but delete the first element since it is from the ID field
-        sdata = $(ev.target).closest("tr").find("input").serializeArray();
-        sdata.shift();
-        alert(JSON.stringify(sdata));
-    //   declare our model
-        var cf =  new directory.CustFieldModel;
-     
-     // set the route url 
-        cf.url = cf.url + "/" + tId;
-
-        var cfData = new Array();
-
-        sdata.forEach(function(entry) {
-                cfData.push(entry.value);
-             
-        });
-
-                    cf.save({values:cfData},{
-                        success: function(model, response) {
-                            $("#info-basic").html(response);
-                            $("#info-basic").show();
-
-                        },
-                        error: function(model, response) {
-                            $("#err-basic").html(response);
-                            $("#err-basic").show();
-                        }
-                    });
-         }
+    basicSaver: function(ev) {}
 });
 
 directory.bfEditItemView = Backbone.View.extend({
@@ -386,14 +407,14 @@ directory.bfEditViewItemView = Backbone.View.extend({
     }
 });
 
-directory.CustFieldModel = Backbone.Model.extend({
-    url: 'http://localhost:3000/custom-fields'
-});
+//directory.CustFieldModel = Backbone.Model.extend({
+//    url: 'http://localhost:3000/custom-fields'
+//});
 
-directory.CustFieldsCollection = Backbone.Collection.extend({
-    model: directory.CustFieldModel,
-    url: 'http://localhost:3000/custom-fields'
-});
+//directory.CustFieldsCollection = Backbone.Collection.extend({
+//    model: directory.CustFieldModel,
+//    url: 'http://localhost:3000/custom-fields'
+//});
 
 directory.CustFieldView = Backbone.View.extend({
 
