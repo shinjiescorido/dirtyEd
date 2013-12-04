@@ -1,0 +1,13 @@
+<% if(isEdit) { %>
+    <div class="btn-group">
+        <input type="hidden" name="fieldTypeDDownId" id="fieldTypeDDownId" value=<%= fieldType %>>
+        <button type="button" class="btn" id="fieldTypeDDownBtn">panut</button>
+        <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" id="fieldTypeDDown" role="menu">
+        </ul>
+    </div>
+<% } else { %>
+        <%= newType %>
+<% } %>

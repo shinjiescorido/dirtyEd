@@ -6,7 +6,21 @@ module.exports = function(app, custom_fields) {
 
     //temp delete to remove test items
     app.delete('/custom-fields/:id', deleteField);
-
+    app.post('/updatecustomfield/:id',function(req, res){
+    
+    var id = req.params.id;
+    var cfData = req.body;
+    
+    custom_fields.customFieldsModel.update({'_id':id}, cfData, {safe:true}, function(err, result) {
+            if (err) {
+               // console.log('Error updating CustomFields: ' + err);
+                res.send({'error':'An error has occurred'});
+            } else {
+                console.log('' + result + ' document(s) updated');
+                res.send(200,cfData);
+            }
+        });
+    });
 
     //curl http://localhost:3000/custom-fields
 
