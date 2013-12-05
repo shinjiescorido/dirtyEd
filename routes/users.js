@@ -1,7 +1,8 @@
 module.exports = function(app, user) {
 
-    //app.get('/add-user', listUsers);
+    var async = require('async');
     app.get('/directory', listAllUsers);
+
     // app.post('/add-user', addUser);
 
     // temporary function to add user
@@ -13,7 +14,7 @@ module.exports = function(app, user) {
     app.delete('/profile/:id', deleteUser);
 
     app.get('/profile/:username', showProfile)
-
+    app.get('/profiles', showBasicProfiles)
 
     var custom_fields = require('../routes/custom_fields');
 
@@ -28,10 +29,108 @@ module.exports = function(app, user) {
                 res.send(500, err);
             } else {
                 id = doc._id;
-                user.Users.find({field: {$elemMatch: {objectID: id, assignedValue: username}}, isActive: 1}, null, function(error, employee) {
-                    res.send(200, employee);
-                    console.log(username + 'retrieved.');
+                user.Users.findOne({field: {$elemMatch: {objectID: id, assignedValue: username}}, isActive: 1}, null, function(error, employee) {
+                    if (err) {
+
+                    } else {
+                        var test = ' ';
+                        test = employee.field[0].assignedValue[0];
+                        console.log(test);
+                        res.send(200, employee);
+                        console.log(username + ' retrieved.');
+                    }
                 });
+            }
+        });
+    }
+
+
+    //sample code to get specific value of a subdocument field
+    function showUsername(req, res) {
+        var username = req.params.username;
+        var UsernameFieldLabel = "Username";
+        var id;
+        user.customFieldsModel.findOne({label: UsernameFieldLabel}, function(err, doc) {
+            if (err) {
+                console.log(err);
+                res.send(500, err);
+            } else {
+                id = doc._id;
+                user.Users.findOne({field: {$elemMatch: {objectID: id, assignedValue: username}}, isActive: 1}, 
+                    {
+                        'field.assignedValue': 1,
+                        field: {
+                            $elemMatch: {
+                                objectID: id, assignedValue: username
+                                }
+                            },
+                    },
+                     function(error, employee) {
+                        if (err) {}
+                            else {
+                        var test = ' ';
+                        test = employee.field[0].assignedValue[0];
+                        console.log(test);
+                        res.send(200, employee);
+                        console.log(username + ' retrieved.');
+                    }
+                });
+            }
+        });
+    }
+
+    function showBasicProfiles(req, res) {
+        var model = user.customFieldsModel;
+
+        async.parallel([
+                function(callback) {
+                    getID('First Name', model, function(firstID) {
+                        callback(null, firstID);
+                    });
+                },
+                function(callback) {
+                    getID('Last Name', model, function(lastID) {
+                        callback(null, lastID);
+                    });
+                },
+                function(callback) {
+                    getID('Job Position', model, function(jobID) {
+                        callback(null, jobID);
+                    });
+                },
+                function(callback) {
+                    getID('Username', model, function(userID) {
+                        callback(null, userID);
+                    });
+                }
+            ], function(err, results) {
+                user.Users.aggregate([
+                    {$match: {isActive: true}},
+                    {$unwind: "$field"},
+                    {$match: {"field.objectID": {$in: [results[0], results[1], results[2], results[3]]}}},
+                    {$group:{_id:"$_id", "field":{$push:"$field"}}}
+                ], function(error, doc){
+                    res.send(200, doc);
+                });
+
+                //console.log(results[0]);
+            })
+
+        // getID(label, model, function(id) {
+        //     //console.log(id);
+            
+             
+        // });
+    }
+
+    //gets the ID of a specific label in custom fields 
+    function getID (_label, model, callback) {
+        var id;
+        model.findOne({label: _label}, function(err, doc) {
+            if (err) {
+                console.log(err)
+            } else {
+                callback(doc._id);
             }
         });
     }
@@ -91,6 +190,9 @@ module.exports = function(app, user) {
             }
         })
     }
+
+
+    
 
 
 }

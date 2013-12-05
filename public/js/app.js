@@ -196,7 +196,26 @@ directory.Router = Backbone.Router.extend({
 });
 
 $(document).on("ready", function() {
-    directory.loadTemplates(["HomeView", "ContactView", "ShellView", "EmployeeView", "EmployeeSummaryView", "EmployeeListItemView", "LoginView", "CustFieldView", "bfListItemView", "cfListItemView", "bfEditItemView", "bfEditViewItemView", "CreateAccountView", "FormFieldListItemView", "ModalView"],
+    directory.loadTemplates([
+            "HomeView",
+            "ContactView",
+            "ShellView",
+            "EmployeeView", 
+            "EmployeeSummaryView", 
+            "EmployeeListItemView", 
+            "LoginView", 
+            "CustFieldView", 
+            "bfListItemView", 
+            "cfListItemView", 
+            "bfEditItemView", 
+            "bfEditViewItemView",
+            "cfEditItemView",
+            "cfEditItemViewAttr",
+            "cfEditItemViewType",
+            "cfEditItemViewLbl",
+            "CreateAccountView",
+            "FormFieldListItemView"
+        ],
         function() {
             directory.router = new directory.Router();
             Backbone.history.start();

@@ -76,6 +76,12 @@ directory.cfListView = Backbone.View.extend({
 
 directory.cfListItemView = Backbone.View.extend({
 
+    events: {
+        "click #custEditer": "custEditer",
+        "click #custCanceller": "custCanceller",
+        "click #custSaver": "custSaver"
+    },
+
     tagName: "tr",
 
     render: function() {
@@ -99,7 +105,19 @@ directory.cfListItemView = Backbone.View.extend({
                 alert("edit directory.cfListItemView.render of custfield.js");
                 alert("data = " + data._id);
                 $(this).closest("tr").remove();
-
+                $.ajax({
+                        url:"http://localhost:3000/custom-fields/" + data._id,
+                        type:'delete',
+                        async:false,
+                        success:function(result){
+                            $("#info-cust").html("Item Successfully Deleted");
+                            $("#info-cust").css('display', 'block').css('visibility', 'visible');
+                        },
+                        error:function(result){
+                            $("#err-cust").html("There was an error trying to Delete Item");
+                            $("#err-cust").css('display', 'block').css('visibility', 'visible');
+                        }
+                });
                 //perform delete here
 
                 //Call below for success
@@ -114,8 +132,156 @@ directory.cfListItemView = Backbone.View.extend({
             }
         });
         return this;
-    }
+    },
 
+    custEditer: function(ev) {
+        $(ev.target).parent().find('.isedit').css('display', 'inline-block').css('visibility', 'visible')
+        $(ev.target).css('display', 'none').css('visibility', 'hidden')
+
+        var values = $(ev.target).closest("td").prev();
+        var attributes = values.closest("td").prev();
+        var typest = attributes.closest("td").prev();
+        var label = typest.closest("td").prev();
+
+        this.model.isPublicStr = this.model.isPublic ? "Public" : "Private"
+        this.model.isRequiredStr = this.model.isRequired ? "Required" : "Optional"
+        this.model.isEditableStr = this.model.isEditable ? "Editable" : "Permanent"
+        this.model.newType = getIndexText(this.model.fieldType);
+        this.model.isEdit = true;
+
+        values.html(new directory.bfEditItemView({
+            model: this.model
+        }).render().el);
+        attributes.html(new directory.cfEditItemView({
+            model: this.model
+        }).render().el);
+        typest.html(new directory.cfEditItemViewType({
+            model: this.model
+        }).render().el);
+        label.html(new directory.cfEditItemViewLbl({
+            model: this.model
+        }).render().el);
+    },
+
+    custCanceller: function(ev) {
+        this.model.isEdit = false;
+
+        var values = $(ev.target).closest("td").prev();
+        var attributes = values.closest("td").prev();
+        var typest = attributes.closest("td").prev();
+        var label = typest.closest("td").prev();
+
+        values.html(new directory.bfEditViewItemView({
+            model: this.model
+        }).render().el);
+        attributes.html(new directory.cfEditItemViewAttr({
+            model: this.model
+        }).render().el);
+        typest.html(new directory.cfEditItemViewType({
+            model: this.model
+        }).render().el);
+        label.html(new directory.cfEditItemViewLbl({
+            model: this.model
+        }).render().el);
+
+        $(ev.target).parent().find('.isedit').css('display', 'none').css('visibility', 'hidden');
+        $(ev.target).parent().find('.thisedit').css('display', 'inline-block').css('visibility', 'visible');
+    },
+
+    custSaver: function(ev) {
+        //
+
+        var par = $(ev.target).closest('tr');
+        var lbl = par.find('#lableParam');
+        var isValid = tz_err_inline(lbl, !(lbl.val().length > 0), "Please fill up empty field.")
+
+        if (getIndexById(par.find('#fieldTypeDDownId').val()).mult == 1) {
+            var val = par.find('#valyy');
+            isValid = tz_err_inline(val, !(val.val().length > 0), "Please fill up empty field.") && isValid
+            alert(isValid)
+        }
+
+        if (isValid) {
+            alert("edit directory.cfListItemView.custSaver of custfield.js");
+            alert("data = " + JSON.stringify($(ev.target).closest('tr').find('input').serializeArray()));
+
+            //Call below for success
+            //$("#info-cust").html("success message")
+            //$("#info-cust").css('display', 'block').css('visibility', 'visible');
+        } else {
+            //Call below for error
+            //$("#err-cust").html("error message")
+            //$("#err-cust").css('display', 'block').css('visibility', 'visible');
+        }
+    }
+});
+
+directory.cfEditItemView = Backbone.View.extend({
+    render: function() {
+        var data = _.clone(this.model);
+        data.newValues = data.values.join(', ');
+        data.isMult = getIndexById(data.fieldType).mult;
+        this.$el.html(this.template(data));
+        return this;
+    }
+});
+
+directory.cfEditItemViewAttr = Backbone.View.extend({
+    render: function() {
+        var data = _.clone(this.model);
+        data.isPublicStr = data.isPublic ? "Public" : "Private"
+        data.isRequiredStr = data.isRequired ? "Required" : "Optional"
+        data.isEditableStr = data.isEditable ? "Editable" : "Permanent"
+        this.$el.html(this.template(data));
+        return this;
+    }
+});
+
+directory.cfEditItemViewType = Backbone.View.extend({
+    events: {
+        "click .ddb": "changedDown"
+    },
+
+    changedDown: function(ev) {
+        var text = $(ev.target).html();
+        var obj = getIndex(text);
+        var par = $(ev.target).closest("tr");
+        par.find("#fieldTypeDDownBtn").html(text);
+        par.find("#fieldTypeDDownId").val(obj.id)
+
+        par.find("#addValues").children().each(function() {
+            $(this).remove();
+        });
+
+        this.model.fieldType = obj.id;
+        par.find(".valx").html(new directory.bfEditItemView({
+            model: this.model
+        }).render().el);
+    },
+
+    render: function() {
+        var data = _.clone(this.model);
+        data.newType = getIndexText(data.fieldType);
+        this.$el.html(this.template(data));
+
+        if (data.isEdit)
+            for (var i = 0; i < dDown.length; i++) {
+                if (i == data.fieldType - 1) {
+                    this.$el.find("#fieldTypeDDownBtn").html(dDown[i].label);
+                    this.$el.find("#fieldTypeDDownId").val(i + 1);
+                }
+                this.$el.find("#fieldTypeDDown").append("<li class='ddb'><a>" + dDown[i].label + "</a></li>");
+            };
+        return this;
+    }
+});
+
+directory.cfEditItemViewLbl = Backbone.View.extend({
+    render: function() {
+        var data = _.clone(this.model);
+        this.$el.html(this.template(data));
+        return this;
+    }
 });
 
 directory.bfListView = Backbone.View.extend({
@@ -143,8 +309,8 @@ directory.bfListItemView = Backbone.View.extend({
 
     events: {
         "click #basicEditer": "basicEditer",
-        "click #basicCanceller": "basicCanceller",
-        "click #basicSaver": "basicSaver"
+        "click #basicCanceller": "basicCanceller" //,
+        //"click #basicSaver": "basicSaver"
     },
 
     tagName: "tr",
@@ -159,14 +325,69 @@ directory.bfListItemView = Backbone.View.extend({
         data.isEditableStr = data.isEditable ? "Editable" : "Permanent"
 
         this.$el.html(this.template(data));
+
         return this;
     },
 
     basicEditer: function(ev) {
-        $(ev.target).closest("td").prev().html(new directory.bfEditItemView({
-            model: this.model
+        var par = $(ev.target).closest("td");
+        var elm = $(this.el);
+        var innerModel = this.model;
+
+        par.closest("td").prev().html(new directory.bfEditItemView({
+            model: innerModel
         }).render().el);
-        $(ev.target).closest("td").html("<div class=\"btn-group\"><button class=\"btn btn-primary\" id=\"basicSaver\">Save</button><button class=\"btn btn-default\" id=\"basicCanceller\">Cancel</button><div>");
+        par.closest("td").html("<button class=\"btn btn-primary saveBast" + innerModel._id + "\" id=\"basicSaver\">save</button><button class=\"btn btn-default\" id=\"basicCanceller\">cancel</button>");
+
+        par.closest("td").find('.saveBast' + innerModel._id).confirmation({
+            "animation": "true",
+            "singleton": "true",
+            "title": "Do you really want to save changes?",
+            "popout": "true",
+            onConfirm: function() {
+
+                //  get the id first
+                var tId = par.closest("tr").find("input").serializeArray()[0].value;
+
+                //   store all values but delete the first element since it is from the ID field
+                sdata = par.closest("tr").find("input").serializeArray();
+                sdata.shift();
+                //   declare our model
+                var cf = new directory.CustFieldModel;
+
+                // set the route url 
+                cf.url = cf.url + "/" + tId;
+
+                var cfData = new Array();
+
+                sdata.forEach(function(entry) {
+                    cfData.push(entry.value);
+                });
+
+                cf.save({
+                    values: cfData
+                }, {
+                    success: function(model, response) {
+                        //$("#info-basic").html("");
+                        //$("#info-basic").css('display', 'block').css('visibility', 'visible');
+                        //its from a trusted source
+                        var modded = eval("(" + JSON.stringify(model) + ")");
+
+                        innerModel.values = modded.values
+
+                        par.closest("tr").replaceWith(new directory.bfListItemView({
+                            model: innerModel
+                        }).render().el);
+                    },
+                    error: function(model, response) {
+                        $("#err-basic").html(response);
+                        $("#err-basic").css('display', 'block').css('visibility', 'visible');
+                    }
+                });
+
+                return false;
+            }
+        });
     },
 
     basicCanceller: function(ev) {
@@ -176,18 +397,7 @@ directory.bfListItemView = Backbone.View.extend({
         $(ev.target).closest("td").html("<button class=\"btn btn-default\" id=\"basicEditer\">edit</button>");
     },
 
-    basicSaver: function(ev) {
-        alert("edit directory.bfListItemView.basicSaver of custfield.js");
-        alert("data = " + JSON.stringify($(ev.target).closest("tr").find("input").serializeArray()));
-
-        //Call below for success
-        //$("#info-basic").html("success message")
-        //$("#info-basic").css('display', 'block').css('visibility', 'visible');
-
-        //Call below for error
-        //$("#err-basic").html("error message")
-        //$("#err-basic").css('display', 'block').css('visibility', 'visible');
-    }
+    basicSaver: function(ev) {}
 });
 
 directory.bfEditItemView = Backbone.View.extend({
@@ -209,14 +419,14 @@ directory.bfEditViewItemView = Backbone.View.extend({
     }
 });
 
-directory.CustFieldModel = Backbone.Model.extend({
-    url: 'http://localhost:3000/custom-fields'
-});
+//directory.CustFieldModel = Backbone.Model.extend({
+//    url: 'http://localhost:3000/custom-fields'
+//});
 
-directory.CustFieldsCollection = Backbone.Collection.extend({
-    model: directory.CustFieldModel,
-    url: 'http://localhost:3000/custom-fields'
-});
+//directory.CustFieldsCollection = Backbone.Collection.extend({
+//    model: directory.CustFieldModel,
+//    url: 'http://localhost:3000/custom-fields'
+//});
 
 directory.CustFieldView = Backbone.View.extend({
 
@@ -275,7 +485,7 @@ directory.CustFieldView = Backbone.View.extend({
 
     addFields: function() {
         $("#addValues").append(
-            "<div style=\"vertical-align: top\" class=\"newval\">" +
+            "<div style=\"vertical-align: top; display: block; margin-left: 0px;\" class=\"newval btn-group\">" +
             "     <input type=\"text\" class=\"form-control\" id=\"label\" placeholder=\"value\" style=\"margin-bottom: 0px;\">" +
             "     <button style=\"text-align: right;\" class=\"btn remVal\"><i class=\"icon-minus\"></i>" +
             "    </button>" +

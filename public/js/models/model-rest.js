@@ -1,6 +1,6 @@
 directory.Employee = Backbone.Model.extend({
 
-    urlRoot:"/employees",
+    urlRoot:"/profiles",
 
     initialize:function () {
         this.reports = new directory.EmployeeCollection();
@@ -12,7 +12,7 @@ directory.Employee = Backbone.Model.extend({
 directory.EmployeeCollection = Backbone.Collection.extend({
 
     model: directory.Employee,
-    url:"/employees"
+    url:"/profiles"
 
 });
 
@@ -33,7 +33,16 @@ directory.BasicFieldCollection = Backbone.Collection.extend({
     url:"/custom-fields/1"
 
 });
+directory.CustFieldModel = Backbone.Model.extend({
+    idAttribute: "_id",
+    url: 'http://localhost:3000/updatecustomfield',
+    urlRoot: 'http://localhost:3000/custom-fields'
+});
 
+directory.CustFieldsCollection = Backbone.Collection.extend({
+    model: directory.CustFieldModel,
+    url: 'http://localhost:3000/custom-fields'
+});
 directory.CustomField = Backbone.Model.extend({
 
     urlRoot:"/custom-fields/0",

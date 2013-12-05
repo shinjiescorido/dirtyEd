@@ -1,15 +1,24 @@
 <input type="hidden" name=id value=<%= _id %> />
 <% if(!isMult) { %>
-<input type="text" name="val" value=<%= "\"" + values[0] + "\"" %> />
+<input type="text" name="val" style="width: 7em" value=<%= "\"" + values[0] + "\"" %> />
 <% } else {
 	  for(var i in values){
 	%>
 	<div>
-	    <input type="text" name="val" value=<%= "\"" + values[i] + "\"" %> />
+	<div class="btn-group form-group control-group">
+	<%
+	if(i == 0){
+		%>
+<label class="control-label help-inline" style="display: block" for="label"></label>
+		<%
+	}
+	%>
+	    <input type="text" class="form-control" style="width: 7em" name="val" id='valyy' value=<%= "\"" + values[i] + "\"" %> />
 	    <% if(i == 0) { %>
-	    <button class="btn btn-default" style="margin-bottom: 10px;" onclick="$(this).closest('td').append('<div>' + $('#template_001').html() + '</div>')"><i class="icon-plus"></i></button>
+	    <button class="btn btn-default" style="margin-bottom: 10px;" onclick="$(this).closest('td').append('<div class=\'btn-group\' style=\'display: block; margin-left: 0px;\'>' + $('#template_001').html() + '</div>')"><i class="icon-plus"></i></button>
 	    <% } else { %>
 	    <button class="btn btn-default" style="margin-bottom: 10px;" onclick="$(this).parent().remove()"><i class="icon-minus"></i></button>
 	    <% } %>
-	    </div>
+	</div>
+	</div>
 <% } }%>

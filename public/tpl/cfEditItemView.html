@@ -1,0 +1,6 @@
+<button type="button" name="isPublic" class=<%="'btn " + (isPublic ? "active" : "") + "'"%> onclick="$(this).toggleClass('active'); $(this).parent().find('#public').val($(this).hasClass('active'))" style="block">Public</button>
+<button type="button" name="isRequired" class=<%="'btn " + (isRequired ? "active" : "") + "'"%> onclick="$(this).toggleClass('active'); $(this).parent().find('#required').val($(this).hasClass('active'))" style="block">Required</button>
+<button type="button" name="isEditable" class=<%="'btn " + (isEditable ? "active" : "") + "'"%> onclick="$(this).toggleClass('active'); $(this).parent().find('#editable').val($(this).hasClass('active'))" style="block">Editable</button>
+<input type="hidden" name='public' id='public' value=<%= isPublic %> />
+<input type="hidden" name='required' id='required' value=<%= isRequired %> />
+<input type="hidden" name='editable' id='editable' value=<%= isEditable %> />
