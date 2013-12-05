@@ -1,15 +1,14 @@
 <% if(label.toLowerCase().indexOf('password') === -1) { %>
-<td><%= label %>:</td>
+<td><%= label %>: <%= isRequired ? '<span style="color: #b94a48;">*</span>' : '' %></td>
 <td>
-
 <%
-  var required      = isRequired ? 'required' : '';
+  var required = isRequired ? 'required' : '';
 
   switch(fieldType)
   {
     case 1:
 %>
-  <input type="text" name="<%= fieldName %>" placeholder="<%= label %>" class="<%= required %>" value="Chaddoy" />
+  <input type="text" name="<%= fieldName %>" placeholder="<%= label %>" class="<%= required %>" />
 <%
       break;
       
@@ -22,7 +21,7 @@
     case 3:
 %>
   <select name="<%= fieldName %>" class="<%= required %>">
-    <!-- <option value=""></option> -->
+    <option value=""></option>
   <%
     values.forEach(function(value) {
   %>
@@ -35,12 +34,17 @@
       break;
       
     case 4:
+      var i = 0;
+      values.forEach(function(value) {
+        if(value) {
 %>
   <label class="radio inline control-label">
-    <input type="radio" name="<%= fieldName %>" id="male" class="<%= required %>" />
-    Male
+    <input type="radio" name="<%= fieldName %>" value="<%= value %>" class="<%= required %>" />
+    <%= value %>
   </label>
 <%
+        }
+      });
       break;
       
     case 5:
