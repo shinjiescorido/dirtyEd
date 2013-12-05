@@ -35,13 +35,13 @@ directory.BasicFieldCollection = Backbone.Collection.extend({
 });
 directory.CustFieldModel = Backbone.Model.extend({
     idAttribute: "_id",
-    url: 'http://localhost:3000/updatecustomfield',
-    urlRoot: 'http://localhost:3000/custom-fields'
+    url: '/updatecustomfield',
+    urlRoot: '/custom-fields'
 });
 
 directory.CustFieldsCollection = Backbone.Collection.extend({
     model: directory.CustFieldModel,
-    url: 'http://localhost:3000/custom-fields'
+    url: '/custom-fields'
 });
 directory.CustomField = Backbone.Model.extend({
 

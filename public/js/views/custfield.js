@@ -104,7 +104,7 @@ directory.cfListItemView = Backbone.View.extend({
 
                 $(this).closest("tr").remove();
                 $.ajax({
-                    url: "http://localhost:3000/custom-fields/" + data._id,
+                    url: "/custom-fields/" + data._id,
                     type: 'delete',
                     async: false,
                     success: function(result) {
@@ -631,9 +631,19 @@ directory.CustFieldView = Backbone.View.extend({
                     //alert(JSON.stringify(dd))
                     //alert(JSON.stringify(rawMod[1]))
 
-                    rawEl.find(".customs").append(new directory.cfListView({
-                        model: rawMod[1]
-                    }).render().el);
+                    var customFieldx = new directory.CustomField();
+                    customFieldx.fetch({
+                        success: function(data2) {
+                            rawEl.find(".customs").html("");
+                            rawEl.find(".customs").append(new directory.cfListView({
+                               model: data2
+                            }).render().el);
+                        }
+                    });
+
+                    //rawEl.find(".customs").append(new directory.cfListView({
+                    //    model: rawMod[1]
+                    //}).render().el);
                 }
             }
         });
