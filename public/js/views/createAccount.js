@@ -1,6 +1,34 @@
 directory.AccountModel = Backbone.Model.extend({
 
-  validate: function(obj, options) {
+  url: '/add-user-temp'
+
+});
+
+directory.FormFieldListView = Backbone.View.extend({
+
+  tagName: 'tbody',
+
+  render: function() {
+    this.$el.empty();
+
+    _.each(this.collection.attributes, function (docs) {
+      this.$el.append(new directory.FormFieldListItemView({ model: docs }).render().el);
+    }, this);
+    return this;
+  }
+
+});
+
+directory.FormFieldListItemView = Backbone.View.extend({
+
+  tagName: 'tr',
+
+  render: function() {
+    var data        = this.model;
+    data.fieldName  = 'field_'+ data._id;
+    // console.log(data);
+    this.$el.html(this.template(data));
+    return this;
   }
 
 });
@@ -26,6 +54,8 @@ directory.CreateAccountView = Backbone.View.extend({
       this.basicListView   = new directory.FormFieldListView({ collection: this.collection.basic, className: 'basic' });
       this.customListView  = new directory.FormFieldListView({ collection: this.collection.custom, className: 'custom' });
 
+      this.accountModel    = new directory.AccountModel;
+
     }
     
   },
@@ -41,6 +71,42 @@ directory.CreateAccountView = Backbone.View.extend({
     return this;
   },
 
+  submit: function(e) {
+    e.preventDefault();
+
+    var form = $('.createAccount');
+
+    if(!this.hasError(form)) {
+
+      this.accountModel.set(this.getFormData(form));
+      this.accountModel.save();
+      this.successCreate();
+
+    }
+  },
+
+  getFormData: function(form) {
+    var mappedData = this.mapArray(form.serializeArray()),
+        field,
+        data;
+
+    data = {
+      "field": [],
+      "isActive": 1
+    }
+
+    $.each(mappedData, function(key, value) {
+      data.field.push({
+        "objectID"        : key.replace('[]', ''),
+        "assignedValue"   : value,
+        "requestedValue"  : []
+      })
+    });
+    // console.log(form.serializeArray());
+    console.log(mappedData);
+    return data;
+  },
+
   showAdded: function() {
     alert('showAdded');
   },
@@ -51,17 +117,6 @@ directory.CreateAccountView = Backbone.View.extend({
 
   testAlert: function() {
     alert('TEST!');
-  },
-
-  submit: function(e) {
-    e.preventDefault();
-
-    var form = $('.createAccount');
-
-    if(!this.hasError(form)) {
-      console.log(form.serializeArray());
-      this.successCreate();
-    }
   },
 
   emptyFields: function(obj) {
@@ -109,18 +164,21 @@ directory.CreateAccountView = Backbone.View.extend({
   },
 
   hasError: function(form) {
-    var result = false;
+    var result    = false,
+        email     = this.getEmailValue(),
+        username  = this.getUsernameValue();
+
     if(this.emptyFields(form.serializeArray())) {
 
       this.showEmptyFields(this.emptyFields(form.serializeArray()));
       result = true;
 
-    } else if((!this.validEmail(this.getEmailValue())) || (this.hasSpecialChar(this.getUsernameValue()))) {
+    } else if((!this.validEmail(email)) || (this.hasSpecialChar(username)) || (!this.validUsernameLength(username))) {
 
-      if(!this.validEmail(this.getEmailValue())) {
+      if(!this.validEmail(email)) {
         this.showInvalidEmail();
       }
-      if(this.hasSpecialChar(this.getUsernameValue())) {
+      if((this.hasSpecialChar(username)) || (!this.validUsernameLength(username))) {
         this.showInvalidUsername();
       }
       result = true;
@@ -137,6 +195,17 @@ directory.CreateAccountView = Backbone.View.extend({
     var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     // console.log(email);
     return re.test(email);
+  },
+
+  validUsernameLength: function(username) {
+    var result = true;
+    if(username.length < 6) {
+      result = false;
+    }
+    if(username.length > 10) {
+      result = false;
+    }
+    return result;
   },
 
   getEmailValue: function() {
@@ -223,11 +292,6 @@ directory.CreateAccountView = Backbone.View.extend({
     $('.createAccount', this.el).prepend(this.modalView.render().el);
   },
 
-  // getFormData: function(form) {
-  //   var FormData = this.mapArray( form.serializeArray() );
-  //   console.log(FormData);
-  // },
-
   notChecked: function(arr) {
     var checkedIndex,
         notChecked = [];
@@ -252,7 +316,7 @@ directory.CreateAccountView = Backbone.View.extend({
 
     if(!this.hasError(form)) {
       setTimeout(function() {
-        (action === 'save') ? form[0].reset() : top.location = '#home';;
+        (action === 'save') ? form[0].reset() : top.location = '#';
       }, (action === 'save') ? 1000 : 2000);
     }
   },
@@ -260,39 +324,21 @@ directory.CreateAccountView = Backbone.View.extend({
   mapArray: function(arr) {
     var obj = {};
 
-    $.map(arr, function(value, index) {
-        obj[value['name'].replace('field_', '')] = value['value'];
+    $.map(arr, function(key) {
+      obj[key['name'].replace('field_', '')] = (key['name'].indexOf('[]') !== -1) ? [] : [key['value']];
     });
+
+    $.each(obj, function(key, value) {
+      if(key.indexOf('[]') !== -1) {
+        $('[name="field_'+ key +'"]').each(function() {
+          if(this.checked) {
+            obj[key].push(this.value);
+          }
+        });
+      }
+    });
+
     return obj;
-  }
-
-});
-
-directory.FormFieldListView = Backbone.View.extend({
-
-  tagName: 'tbody',
-
-  render: function() {
-    this.$el.empty();
-
-    _.each(this.collection.attributes, function (docs) {
-      this.$el.append(new directory.FormFieldListItemView({ model: docs }).render().el);
-    }, this);
-    return this;
-  }
-
-});
-
-directory.FormFieldListItemView = Backbone.View.extend({
-
-  tagName: 'tr',
-
-  render: function() {
-    var data        = this.model;
-    data.fieldName  = 'field_'+ data._id;
-    // console.log(data);
-    this.$el.html(this.template(data));
-    return this;
   }
 
 });

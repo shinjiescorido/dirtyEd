@@ -6,7 +6,7 @@ module.exports = function(app, user) {
     // app.post('/add-user', addUser);
 
     // temporary function to add user
-    app.get('/add-user-temp', addusertemp);
+    app.post('/add-user-temp', addusertemp);
 
 
 
@@ -154,21 +154,22 @@ module.exports = function(app, user) {
     }
 
     function addusertemp(req,res) {
-        var employees = {
-                "field": [
-                            {"objectID": "5297d80a025a83e404000004", "assignedValue": ["Rosana"], "requestedValue":[""] },
-                            {"objectID": "5297d80f025a83e404000005", "assignedValue": [" "], "requestedValue":[""] },
-                            {"objectID": "5297d815025a83e404000006", "assignedValue": ["Ferolin"], "requestedValue":[""] },
-                            {"objectID": "5297d81b025a83e404000007", "assignedValue": ["Scrum Master"], "requestedValue":[""] },
-                            {"objectID": "5297d822025a83e404000008", "assignedValue": ["rosana.ferolin@globalzeal.net"], "requestedValue":[""] },
-                            {"objectID": "5297d829025a83e404000009", "assignedValue": [" "], "requestedValue":[""] },
-                            {"objectID": "52982cf6da4555da60000002", "assignedValue": ["Rosana.Ferolin2"], "requestedValue":[""] },
-                            {"objectID": "5297d856025a83e40400000a", "assignedValue": ["Sana - Not Active"], "requestedValue":[""] },
-                            {"objectID": "5297ef021dd16c491c000002", "assignedValue": ["Rosana.Ferolin"],"requestedValue":["Javascript","HTML"] },
-                         ],
-                "isActive": 0
-            };
-        user.Users.create(employees, function (err, doc) {
+        // var employees = {
+        //         "field": [
+        //                     {"objectID": "5297d80a025a83e404000004", "assignedValue": ["Rosana"], "requestedValue":[""] },
+        //                     {"objectID": "5297d80f025a83e404000005", "assignedValue": [" "], "requestedValue":[""] },
+        //                     {"objectID": "5297d815025a83e404000006", "assignedValue": ["Ferolin"], "requestedValue":[""] },
+        //                     {"objectID": "5297d81b025a83e404000007", "assignedValue": ["Scrum Master"], "requestedValue":[""] },
+        //                     {"objectID": "5297d822025a83e404000008", "assignedValue": ["rosana.ferolin@globalzeal.net"], "requestedValue":[""] },
+        //                     {"objectID": "5297d829025a83e404000009", "assignedValue": [" "], "requestedValue":[""] },
+        //                     {"objectID": "52982cf6da4555da60000002", "assignedValue": ["Rosana.Ferolin2"], "requestedValue":[""] },
+        //                     {"objectID": "5297d856025a83e40400000a", "assignedValue": ["Sana - Not Active"], "requestedValue":[""] },
+        //                     {"objectID": "5297ef021dd16c491c000002", "assignedValue": ["Rosana.Ferolin"],"requestedValue":["Javascript","HTML"] },
+        //                  ],
+        //         "isActive": 0
+        //     };
+        user.Users.create(req.body, function (err, doc) {
+            console.log(req.body);
              if (err) {
                  console.log(err);
              } else {
