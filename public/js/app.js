@@ -214,7 +214,8 @@ $(document).on("ready", function() {
             "cfEditItemViewType",
             "cfEditItemViewLbl",
             "CreateAccountView",
-            "FormFieldListItemView"
+            "FormFieldListItemView",
+            "ModalView"
         ],
         function() {
             directory.router = new directory.Router();
