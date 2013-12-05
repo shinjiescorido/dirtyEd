@@ -105,7 +105,19 @@ directory.cfListItemView = Backbone.View.extend({
                 alert("edit directory.cfListItemView.render of custfield.js");
                 alert("data = " + data._id);
                 $(this).closest("tr").remove();
-
+                $.ajax({
+                        url:"http://localhost:3000/custom-fields/" + data._id,
+                        type:'delete',
+                        async:false,
+                        success:function(result){
+                            $("#info-cust").html("Item Successfully Deleted");
+                            $("#info-cust").css('display', 'block').css('visibility', 'visible');
+                        },
+                        error:function(result){
+                            $("#err-cust").html("There was an error trying to Delete Item");
+                            $("#err-cust").css('display', 'block').css('visibility', 'visible');
+                        }
+                });
                 //perform delete here
 
                 //Call below for success
