@@ -102,21 +102,19 @@ directory.cfListItemView = Backbone.View.extend({
             "popout": "true",
             onConfirm: function() {
 
-                alert("edit directory.cfListItemView.render of custfield.js");
-                alert("data = " + data._id);
                 $(this).closest("tr").remove();
                 $.ajax({
-                        url:"http://localhost:3000/custom-fields/" + data._id,
-                        type:'delete',
-                        async:false,
-                        success:function(result){
-                            $("#info-cust").html("Item Successfully Deleted");
-                            $("#info-cust").css('display', 'block').css('visibility', 'visible');
-                        },
-                        error:function(result){
-                            $("#err-cust").html("There was an error trying to Delete Item");
-                            $("#err-cust").css('display', 'block').css('visibility', 'visible');
-                        }
+                    url: "http://localhost:3000/custom-fields/" + data._id,
+                    type: 'delete',
+                    async: false,
+                    success: function(result) {
+                        //$("#info-cust").html("Item Successfully Deleted");
+                        //$("#info-cust").css('display', 'block').css('visibility', 'visible');
+                    },
+                    error: function(result) {
+                        $("#err-cust").html("There was an error trying to Delete Item");
+                        $("#err-cust").css('display', 'block').css('visibility', 'visible');
+                    }
                 });
                 //perform delete here
 
@@ -481,14 +479,14 @@ directory.bfEditViewItemView = Backbone.View.extend({
     }
 });
 
-//directory.CustFieldModel = Backbone.Model.extend({
+// directory.CustFieldModel = Backbone.Model.extend({
 //    url: 'http://localhost:3000/custom-fields'
-//});
+// });
 
-//directory.CustFieldsCollection = Backbone.Collection.extend({
+// directory.CustFieldsCollection = Backbone.Collection.extend({
 //    model: directory.CustFieldModel,
 //    url: 'http://localhost:3000/custom-fields'
-//});
+// });
 
 directory.CustFieldView = Backbone.View.extend({
 
@@ -517,10 +515,11 @@ directory.CustFieldView = Backbone.View.extend({
                 model: this.model[0]
             }).render().el);
 
-        if (this.model && this.model[1])
+        if (this.model && this.model[1]) {
             $(this.el).find(".customs").append(new directory.cfListView({
                 model: this.model[1]
             }).render().el);
+        }
 
         return this;
     },
@@ -548,7 +547,7 @@ directory.CustFieldView = Backbone.View.extend({
     addFields: function() {
         $("#addValues").append(
             "<div style=\"vertical-align: top; display: block; margin-left: 0px;\" class=\"newval btn-group\">" +
-            "     <input type=\"text\" class=\"form-control\" id=\"label\" placeholder=\"value\" style=\"margin-bottom: 0px;\">" +
+            "     <input type=\"text\" class=\"form-control\" id=\"label\" placeholder=\"value\" name=\"value\" style=\"margin-bottom: 0px;\">" +
             "     <button style=\"text-align: right;\" class=\"btn remVal\"><i class=\"icon-minus\"></i>" +
             "    </button>" +
             "</div>");
@@ -575,6 +574,9 @@ directory.CustFieldView = Backbone.View.extend({
             isValid = isValid & tz_err_inline("#valxx", !$('#valxx').val(), "Please fill up empty field.");
 
         if (isValid) {
+            //PERFORM SAVE HERE
+            this.submitForm();
+
             $("#addHider").css('display', 'none').css('visibility', 'hidden');
             $("#lableParam").val("");
 
@@ -587,25 +589,54 @@ directory.CustFieldView = Backbone.View.extend({
 
             $("#valxx").val("");
 
-            //PERFORM SAVE HERE
-            this.submitForm(evt);
-
             $("#info").html("Successfully added new field.")
             $("#info").css('display', 'block').css('visibility', 'visible');
-            $("#error").html("Problems with the operation")
-            $("#error").css('display', 'block').css('visibility', 'visible');
+            //$("#error").html("Problems with the operation")
+            //$("#error").css('display', 'block').css('visibility', 'visible');
         }
 
         return false;
     },
 
-    submitForm: function(evt) {
-        evt.preventDefault();
-        var custFieldData = JSON.stringify(this.getFormData($('#customFieldForm')));
+    submitForm: function() {
+        //evt.preventDefault();
+        var custFieldData = this.getFormData($('#customFieldForm')); //JSON.stringify(this.getFormData($('#customFieldForm')));
         var customField = new directory.CustFieldModel;
 
-        customField.set(JSON.parse(custFieldData));
-        customField.save();
+        customField.url = customField.urlRoot;
+        var rawMod = this.model;
+        var rawEl = $(this.el);
+
+        //customField.set(JSON.parse(custFieldData));
+        customField.save({
+            label: custFieldData.label,
+            fieldType: custFieldData.fieldType,
+            values: custFieldData.values,
+            isRequired: custFieldData.isRequired,
+            isPublic: custFieldData.isPublic,
+            isEditable: custFieldData.isEditable,
+            isBasic: false,
+            isActive: true
+        }, {
+            success: function(model, response) {
+
+            },
+            error: function(model, response) {
+                if (rawMod && rawMod[1]) {
+                    rawEl.find(".customs").html("");
+
+                    var dd = JSON.parse(JSON.stringify(rawMod[1]))
+                    dd[666] = model;
+
+                    //alert(JSON.stringify(dd))
+                    //alert(JSON.stringify(rawMod[1]))
+
+                    rawEl.find(".customs").append(new directory.cfListView({
+                        model: rawMod[1]
+                    }).render().el);
+                }
+            }
+        });
     },
 
     getFormData: function(form) {
