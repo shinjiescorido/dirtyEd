@@ -78,8 +78,8 @@ directory.cfListItemView = Backbone.View.extend({
 
     events: {
         "click #custEditer": "custEditer",
-        "click #custCanceller": "custCanceller",
-        "click #custSaver": "custSaver"
+        "click #custCanceller": "custCanceller" //,
+        //"click #custSaver": "custSaver"
     },
 
     tagName: "tr",
@@ -149,6 +149,82 @@ directory.cfListItemView = Backbone.View.extend({
         label.html(new directory.cfEditItemViewLbl({
             model: this.model
         }).render().el);
+
+        var par = $(ev.target).parent();
+        var innerModel = this.model;
+
+        $(ev.target).closest("td").find('#custSaver').confirmation({
+            "animation": "true",
+            "singleton": "true",
+            "title": "Do you really want to save changes?",
+            "popout": "true",
+            onConfirm: function() {
+
+                var parTr = $(ev.target).closest('tr');
+                var lbl = parTr.find('#lableParam');
+                var isValid = tz_err_inline(lbl, !(lbl.val().length > 0), "Please fill up empty field.")
+
+                if (getIndexById(parTr.find('#fieldTypeDDownId').val()).mult == 1) {
+                    var val = parTr.find('#valyy');
+
+                    val.closest("td").find("input[type=text]").each(function() {
+                        isValid = tz_err_inline($(this), isNullOrWhiteSpace($(this).val()), "Please fill up empty field.") && isValid
+                    });
+                }
+
+                if (isValid) {
+                    //Call below for success
+                    //$("#info-cust").html("success message")
+                    //$("#info-cust").css('display', 'block').css('visibility', 'visible');
+
+                    var container = par.closest("tr");
+
+                    var tId = container.find("input[name=id]").val();
+                    var lblx = container.find("input[name=lableParam]").val();
+                    var ftype = container.find("input[name=fieldTypeDDownId]").val();
+                    var pub = container.find("input[name=public]").val();
+                    var req = container.find("input[name=required]").val();
+                    var ed = container.find("input[name=editable]").val();
+                    var cfDataInner = new Array();
+                    container.find("input[name=val]").each(function() {
+                        cfDataInner.push($(this).val())
+                    });
+
+                    //   declare our model
+                    var cf = new directory.CustFieldModel;
+
+                    // set the route url 
+                    cf.url = cf.url + "/" + tId;
+
+                    cf.save({
+                        values: cfDataInner,
+                        label: lblx,
+                        fieldType: ftype,
+                        isPublic: pub == 'true',
+                        isRequired: req == 'true',
+                        isEditable: ed == 'true'
+                    }, {
+                        success: function(model, response) {
+                            //$("#info-basic").html("");
+                            //$("#info-basic").css('display', 'block').css('visibility', 'visible');
+                            //its from a trusted source
+                            var modded = eval("(" + JSON.stringify(model) + ")");
+                            modded._id = tId;
+
+                            par.closest("tr").replaceWith(new directory.cfListItemView({
+                                model: modded
+                            }).render().el);
+                        },
+                        error: function(model, response) {
+                            $("#err-basic").html(response);
+                            $("#err-basic").css('display', 'block').css('visibility', 'visible');
+                        }
+                    });
+                }
+
+                return false;
+            }
+        });
     },
 
     custCanceller: function(ev) {
@@ -174,35 +250,12 @@ directory.cfListItemView = Backbone.View.extend({
 
         $(ev.target).parent().find('.isedit').css('display', 'none').css('visibility', 'hidden');
         $(ev.target).parent().find('.thisedit').css('display', 'inline-block').css('visibility', 'visible');
-    },
-
-    custSaver: function(ev) {
-        //
-
-        var par = $(ev.target).closest('tr');
-        var lbl = par.find('#lableParam');
-        var isValid = tz_err_inline(lbl, !(lbl.val().length > 0), "Please fill up empty field.")
-
-        if (getIndexById(par.find('#fieldTypeDDownId').val()).mult == 1) {
-            var val = par.find('#valyy');
-            isValid = tz_err_inline(val, !(val.val().length > 0), "Please fill up empty field.") && isValid
-            alert(isValid)
-        }
-
-        if (isValid) {
-            alert("edit directory.cfListItemView.custSaver of custfield.js");
-            alert("data = " + JSON.stringify($(ev.target).closest('tr').find('input').serializeArray()));
-
-            //Call below for success
-            //$("#info-cust").html("success message")
-            //$("#info-cust").css('display', 'block').css('visibility', 'visible');
-        } else {
-            //Call below for error
-            //$("#err-cust").html("error message")
-            //$("#err-cust").css('display', 'block').css('visibility', 'visible');
-        }
     }
 });
+
+function isNullOrWhiteSpace(str) {
+    return str === null || str.match(/^ *$/) !== null;
+}
 
 directory.cfEditItemView = Backbone.View.extend({
     render: function() {
@@ -297,8 +350,7 @@ directory.bfListItemView = Backbone.View.extend({
 
     events: {
         "click #basicEditer": "basicEditer",
-        "click #basicCanceller": "basicCanceller" //,
-        //"click #basicSaver": "basicSaver"
+        "click #basicCanceller": "basicCanceller"
     },
 
     tagName: "tr",
@@ -334,44 +386,56 @@ directory.bfListItemView = Backbone.View.extend({
             "popout": "true",
             onConfirm: function() {
 
-                //  get the id first
-                var tId = par.closest("tr").find("input").serializeArray()[0].value;
+                var parTr = par.closest('tr');
+                var isValid = true;
 
-                //   store all values but delete the first element since it is from the ID field
-                sdata = par.closest("tr").find("input").serializeArray();
-                sdata.shift();
-                //   declare our model
-                var cf = new directory.CustFieldModel;
+                if (parTr.find("input[type=text]").length > 1) {
+                    parTr.find("input[type=text]").each(function() {
+                        isValid = tz_err_inline($(this), isNullOrWhiteSpace($(this).val()), "Please fill up empty field.") && isValid
+                    });
+                }
 
-                // set the route url 
-                cf.url = cf.url + "/" + tId;
+                if (isValid) {
 
-                var cfData = new Array();
+                    //  get the id first
+                    var tId = par.closest("tr").find("input").serializeArray()[0].value;
 
-                sdata.forEach(function(entry) {
-                    cfData.push(entry.value);
-                });
+                    //   store all values but delete the first element since it is from the ID field
+                    sdata = par.closest("tr").find("input").serializeArray();
+                    sdata.shift();
+                    //   declare our model
+                    var cf = new directory.CustFieldModel;
 
-                cf.save({
-                    values: cfData
-                }, {
-                    success: function(model, response) {
-                        //$("#info-basic").html("");
-                        //$("#info-basic").css('display', 'block').css('visibility', 'visible');
-                        //its from a trusted source
-                        var modded = eval("(" + JSON.stringify(model) + ")");
+                    // set the route url 
+                    cf.url = cf.url + "/" + tId;
 
-                        innerModel.values = modded.values
+                    var cfData = new Array();
 
-                        par.closest("tr").replaceWith(new directory.bfListItemView({
-                            model: innerModel
-                        }).render().el);
-                    },
-                    error: function(model, response) {
-                        $("#err-basic").html(response);
-                        $("#err-basic").css('display', 'block').css('visibility', 'visible');
-                    }
-                });
+                    sdata.forEach(function(entry) {
+                        cfData.push(entry.value);
+                    });
+
+                    cf.save({
+                        values: cfData
+                    }, {
+                        success: function(model, response) {
+                            //$("#info-basic").html("");
+                            //$("#info-basic").css('display', 'block').css('visibility', 'visible');
+                            //its from a trusted source
+                            var modded = eval("(" + JSON.stringify(model) + ")");
+
+                            innerModel.values = modded.values
+
+                            par.closest("tr").replaceWith(new directory.bfListItemView({
+                                model: innerModel
+                            }).render().el);
+                        },
+                        error: function(model, response) {
+                            $("#err-basic").html(response);
+                            $("#err-basic").css('display', 'block').css('visibility', 'visible');
+                        }
+                    });
+                }
 
                 return false;
             }
@@ -384,8 +448,6 @@ directory.bfListItemView = Backbone.View.extend({
         }).render().el);
         $(ev.target).closest("td").html("<button class=\"btn btn-default\" id=\"basicEditer\">edit</button>");
     },
-
-    basicSaver: function(ev) {}
 });
 
 directory.bfEditItemView = Backbone.View.extend({

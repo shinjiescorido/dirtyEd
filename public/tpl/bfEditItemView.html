@@ -2,17 +2,14 @@
 <% if(!isMult) { %>
 <input type="text" name="val" style="width: 7em" value=<%= "\"" + values[0] + "\"" %> />
 <% } else {
+	%>
+	<div class="form-group control-group">
+	<label class="control-label help-inline" style="display: block" for="label"></label>
+	<%
 	  for(var i in values){
 	%>
 	<div>
-	<div class="btn-group form-group control-group">
-	<%
-	if(i == 0){
-		%>
-<label class="control-label help-inline" style="display: block" for="label"></label>
-		<%
-	}
-	%>
+	<div class="btn-group">
 	    <input type="text" class="form-control" style="width: 7em" name="val" id='valyy' value=<%= "\"" + values[i] + "\"" %> />
 	    <% if(i == 0) { %>
 	    <button class="btn btn-default" style="margin-bottom: 10px;" onclick="$(this).closest('td').append('<div class=\'btn-group\' style=\'display: block; margin-left: 0px;\'>' + $('#template_001').html() + '</div>')"><i class="icon-plus"></i></button>
@@ -20,5 +17,8 @@
 	    <button class="btn btn-default" style="margin-bottom: 10px;" onclick="$(this).parent().remove()"><i class="icon-minus"></i></button>
 	    <% } %>
 	</div>
-	</div>
-<% } }%>
+<% } 
+	%>
+		</div>
+	<%
+}%>
