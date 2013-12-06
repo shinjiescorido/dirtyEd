@@ -1,6 +1,6 @@
 directory.AccountModel = Backbone.Model.extend({
 
-  url: '/add-user-temp'
+  url: '/add-user-temp',
 
 });
 
@@ -26,8 +26,10 @@ directory.FormFieldListItemView = Backbone.View.extend({
   render: function() {
     var data        = this.model;
     data.fieldName  = 'field_'+ data._id;
-    // console.log(data);
-    this.$el.html(this.template(data));
+    console.log(data);
+    if(data.isActive && data.label.toLowerCase().indexOf('password') === -1) {
+      this.$el.html(this.template(data));
+    }
     return this;
   }
 
@@ -81,6 +83,10 @@ directory.CreateAccountView = Backbone.View.extend({
       this.accountModel.set(this.getFormData(form));
       this.accountModel.save();
       this.successCreate();
+
+      setTimeout(function() {
+        (e.target.id === 'saveAndClose') ? top.location = '#' : form[0].reset();
+      }, (e.target.id === 'saveAndClose') ? 2000 : 1000);
 
     }
   },
@@ -168,19 +174,23 @@ directory.CreateAccountView = Backbone.View.extend({
         email     = this.getEmailValue(),
         username  = this.getUsernameValue();
 
-    if(this.emptyFields(form.serializeArray())) {
+    this.removeErrors(form);
 
-      this.showEmptyFields(this.emptyFields(form.serializeArray()));
-      result = true;
-
-    } else if((!this.validEmail(email)) || (this.hasSpecialChar(username)) || (!this.validUsernameLength(username))) {
+    if((this.emptyFields(form.serializeArray())) || (!this.validEmail(email)) || (this.hasSpecialChar(username)) || (!this.validUsernameLength(username))) {
 
       if(!this.validEmail(email)) {
         this.showInvalidEmail();
       }
-      if((this.hasSpecialChar(username)) || (!this.validUsernameLength(username))) {
-        this.showInvalidUsername();
+      if((!this.validUsernameLength(username))) {
+        this.showInvalidUsername('Username should be 6-10 characters.');
       }
+      if((this.hasSpecialChar(username))) {
+        this.showInvalidUsername('Username should have no special characters.');
+      }
+      if(this.emptyFields(form.serializeArray())) {
+        this.showEmptyFields(this.emptyFields(form.serializeArray()));
+      }
+
       result = true;
     }
     return result;
@@ -232,6 +242,26 @@ directory.CreateAccountView = Backbone.View.extend({
     return username;
   },
 
+  removeErrors: function(form) {
+    var data = form.serializeArray();
+
+    data.forEach(function(obj) {
+      var element = $('[name="'+ obj.name +'"]');
+
+      if(obj.value) {
+        element.css('border', '1px solid #CCC')
+        .parent().css('color', '#000')
+        .find('span').html('');
+
+        if((element.attr('type') === 'radio') || (element.attr('type') === 'checkbox')) {
+          element.parent().parent()
+          .find('span').html('');
+        }
+      }
+    });
+    
+  },
+
   showEmptyFields: function(fields) {
     $.each(fields, function(index, value) {
       var element = $('[name="'+ value +'"]');
@@ -264,7 +294,7 @@ directory.CreateAccountView = Backbone.View.extend({
     });
   },
 
-  showInvalidUsername: function() {
+  showInvalidUsername: function(message) {
     $('input[type="text"]').each(function() {
       var placeholder = $(this).attr('placeholder').toLowerCase(),
           _this       = $(this);
@@ -272,7 +302,7 @@ directory.CreateAccountView = Backbone.View.extend({
       if(placeholder.indexOf('username') !== -1) {
 
         _this.css('border', '1px solid #b94a48').parent().find('span').css('color', '#b94a48')
-        .html('You have input an invalid username.').css('font-size', '14px');
+        .html(message).css('font-size', '14px');
 
       }
     });
@@ -314,11 +344,14 @@ directory.CreateAccountView = Backbone.View.extend({
     var action  = e.target.id,
         form    = $('.createAccount');
 
-    if(!this.hasError(form)) {
-      setTimeout(function() {
-        (action === 'save') ? form[0].reset() : top.location = '#';
-      }, (action === 'save') ? 1000 : 2000);
-    }
+    form.attr('id', action);
+
+    // if(!this.hasError(form)) {
+    //   form[0].reset();
+    //   setTimeout(function() {
+    //     (action === 'saveAndClose') ? top.location = '#' : false;
+    //   }, 2000);
+    // }
   },
 
   mapArray: function(arr) {
