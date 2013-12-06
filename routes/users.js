@@ -80,6 +80,7 @@ module.exports = function(app, user) {
     }
 
     function showBasicProfiles(req, res) {
+        var name = req.query["name"];
         var model = user.customFieldsModel;
 
         async.parallel([
@@ -104,23 +105,26 @@ module.exports = function(app, user) {
                     });
                 }
             ], function(err, results) {
-                user.Users.aggregate([
-                    {$match: {isActive: true}},
-                    {$unwind: "$field"},
-                    {$match: {"field.objectID": {$in: [results[0], results[1], results[2], results[3]]}}},
-                    {$group:{_id:"$_id", "field":{$push:"$field"}}}
-                ], function(error, doc){
-                    res.send(200, doc);
-                });
-
-                //console.log(results[0]);
+                if(name) {
+                    user.Users.aggregate([
+                        {$match: {isActive: true, fullName: new RegExp('^(' + name + ')', "i")}},
+                        {$unwind: "$field"},
+                        {$match: {"field.objectID": {$in: [results[0], results[1], results[2], results[3]]}}},
+                        {$group:{_id:"$_id", "field":{$push:"$field"}}}
+                    ], function(error, doc){
+                        res.send(200, doc);
+                    });
+                } else {
+                    user.Users.aggregate([
+                        {$match: {isActive: true}},
+                        {$unwind: "$field"},
+                        {$match: {"field.objectID": {$in: [results[0], results[1], results[2], results[3]]}}},
+                        {$group:{_id:"$_id", "field":{$push:"$field"}}}
+                    ], function(error, doc){
+                        res.send(200, doc);
+                    });
+                }
             })
-
-        // getID(label, model, function(id) {
-        //     //console.log(id);
-            
-             
-        // });
     }
 
     //gets the ID of a specific label in custom fields 
@@ -133,6 +137,19 @@ module.exports = function(app, user) {
                 callback(doc._id);
             }
         });
+    }
+
+    function showFieldValue(userID, object_ID, callback) {
+        console.log(userID + ' ' + object_ID);
+        user.Users.findOne({_id: userID}, {'field.assignedValue': 1,
+            field: { $elemMatch: { objectID: object_ID }}}, function(err, doc) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    //console.log(doc);
+                    callback(doc.field[0].assignedValue[0]);
+                }
+            });
     }
 
     function listAllUsers(req, res) {
@@ -173,13 +190,48 @@ module.exports = function(app, user) {
              if (err) {
                  console.log(err);
              } else {
-                 res.send(200, doc)
-                 console.log('Added to Users');
+                res.send(200, doc)
+                console.log('ID ' + doc._id + ' Added to Users');
+                //Set fullname
+                async.parallel([
+                    function(callback) {
+                        getID('First Name', user.customFieldsModel, function(firstID) {
+                            callback(null, firstID);
+                        });
+                    },
+                    function(callback) {
+                        getID('Last Name', user.customFieldsModel, function(lastID) {
+                            callback(null, lastID);
+                        });
+                    }
+                    ],  function(error, results) {
+                        async.parallel([
+                            function(callback) {
+                                showFieldValue(doc._id, results[0], function(firstName) {
+                                    callback(null, firstName);
+                                });
+                            },
+                            function(callback) {
+                                showFieldValue(doc._id, results[1], function(lastName) {
+                                    callback(null, lastName);
+                                });
+                            }
+                        ], function(er, result) {
+                            var full = result[0] + ' ' + result[1]
+                            user.Users.update({_id: doc._id}, {fullName: full}, function(e, d) {
+                                if (e) {
+                                    console.log(e);
+                                } else {
+                                    console.log('Fullname Added.');
+                                }
+                            } )
+                        })
+                });
              }
          });    
     }
 
-    //curl -X DELETE 'http://localhost:3000/profile/[id]'
+    //curl -X DELETE 'http://localhost:8091/profile/[id]'
     function deleteUser (req, res) {
         var id = req.params.id;
         user.Users.findByIdAndRemove(id, function (err, doc) {
