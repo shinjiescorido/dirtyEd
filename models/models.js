@@ -27,7 +27,9 @@ var customFieldsSchema = mongoose.Schema({
 
 var userSchema = mongoose.Schema({
   field: [{ objectID: ObjectId, assignedValue: [String], requestedValue: [String] }],
-  isActive: Boolean
+  isActive: Boolean,
+  password: String,
+  fullName: String
 });
 
 var notificationsSchema = mongoose.Schema({
