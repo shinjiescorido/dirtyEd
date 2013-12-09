@@ -131,7 +131,7 @@ directory.CreateAccountView = Backbone.View.extend({
         radios      = [];
 
     $.each(obj, function(key, attr) {
-      if(!attr.value) {
+      if($('.required[name="'+ attr.name +'"]').val() === "") {
         emptyFields.push(attr.name);
       }
     });

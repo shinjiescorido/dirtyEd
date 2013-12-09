@@ -1,4 +1,4 @@
-<td><%= label %>: <%= isRequired ? '<span style="color: #b94a48;">*</span>' : '' %></td>
+<td><%- label %>: <%= isRequired ? '<span style="color: #b94a48;">*</span>' : '' %></td>
 <td>
 <%
   var required = isRequired ? 'required' : '';
@@ -7,24 +7,24 @@
   {
     case 1:
 %>
-  <input type="text" name="<%= fieldName %>" placeholder="<%= label %>" class="<%= required %>" />
+  <input type="text" name="<%- fieldName %>" placeholder="<%- label %>" class="<%- required %>" />
 <%
       break;
       
     case 2:
 %>
-  <textarea name="<%= fieldName %>" class="field span8 <%= required %>" rows="5"></textarea>
+  <textarea name="<%- fieldName %>" class="field span8 <%- required %>" rows="5"></textarea>
 <%
       break;
       
     case 3:
 %>
-  <select name="<%= fieldName %>" class="<%= required %>">
+  <select name="<%- fieldName %>" class="<%- required %>">
     <option value=""></option>
   <%
     values.forEach(function(value) {
   %>
-    <option value="<%= value %>"><%= value %></option>
+    <option value="<%- value %>"><%- value %></option>
   <%
     });
   %>
@@ -38,8 +38,8 @@
         if(value) {
 %>
   <label class="radio inline control-label">
-    <input type="radio" name="<%= fieldName %>" value="<%= value %>" class="<%= required %>" />
-    <%= value %>
+    <input type="radio" name="<%- fieldName %>" value="<%- value %>" class="<%- required %>" />
+    <%- value %>
   </label>
 <%
         }
@@ -52,8 +52,8 @@
         if(value) {
 %>
   <label class="checkbox">
-    <input type="checkbox" name="<%= fieldName %>[]" value="<%= value %>" class="<%= required %>" />
-    <%= value %>
+    <input type="checkbox" name="<%- fieldName %>[]" value="<%- value %>" class="<%- required %>" />
+    <%- value %>
   </label>
 <%
         }
