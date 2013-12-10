@@ -48,7 +48,6 @@ directory.FormFieldListItemView = Backbone.View.extend({
 directory.CreateAccountView = Backbone.View.extend({
 
   events: {
-    "click .test"             : "testAlert",
     "click .formAction"       : "formAction",
     "submit .createAccount"   : "submit"
   },
