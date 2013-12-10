@@ -4,6 +4,12 @@ directory.AccountModel = Backbone.Model.extend({
 
 });
 
+directory.Profile = Backbone.Model.extend({
+
+  urlRoot: '/username'
+
+});
+
 directory.FormFieldListView = Backbone.View.extend({
 
   tagName: 'tbody',
@@ -23,10 +29,14 @@ directory.FormFieldListItemView = Backbone.View.extend({
 
   tagName: 'tr',
 
+  initialize: function() {
+
+  },
+
   render: function() {
     var data        = this.model;
     data.fieldName  = 'field_'+ data._id;
-    console.log(data);
+    // console.log(data);
     if(data.isActive && data.label.toLowerCase().indexOf('password') === -1) {
       this.$el.html(this.template(data));
     }
@@ -53,11 +63,9 @@ directory.CreateAccountView = Backbone.View.extend({
       this.collection.custom.on('add', this.showAdded, this);
       this.collection.custom.on('change', this.showChanges, this);
 
-      this.basicListView   = new directory.FormFieldListView({ collection: this.collection.basic, className: 'basic' });
-      this.customListView  = new directory.FormFieldListView({ collection: this.collection.custom, className: 'custom' });
-
-      this.accountModel    = new directory.AccountModel;
-
+      this.basicListView      = new directory.FormFieldListView({ collection: this.collection.basic, className: 'basic' });
+      this.customListView     = new directory.FormFieldListView({ collection: this.collection.custom, className: 'custom' });
+      this.accountModel       = new directory.AccountModel;
     }
     
   },
@@ -76,18 +84,26 @@ directory.CreateAccountView = Backbone.View.extend({
   submit: function(e) {
     e.preventDefault();
 
-    var form = $('.createAccount');
+    var form = $('.createAccount'),
+        self = this;
 
     if(!this.hasError(form)) {
 
-      this.accountModel.set(this.getFormData(form));
-      this.accountModel.save();
-      this.successCreate();
+      this.usernameExists(this.getUsernameValue(), function(usernameExists) {
 
-      setTimeout(function() {
-        (e.target.id === 'saveAndClose') ? top.location = '#' : form[0].reset();
-      }, (e.target.id === 'saveAndClose') ? 2000 : 1000);
+        if(usernameExists) {
+          self.showInvalidUsername('Username is already taken.');
+        } else {
+          self.accountModel.set(self.getFormData(form));
+          self.accountModel.save();
+          self.successCreate();
 
+          setTimeout(function() {
+            (e.target.id === 'saveAndClose') ? top.location = '#' : form[0].reset();
+          }, (e.target.id === 'saveAndClose') ? 2000 : 1000);
+        }
+
+      });
     }
   },
 
@@ -109,7 +125,7 @@ directory.CreateAccountView = Backbone.View.extend({
       })
     });
     // console.log(form.serializeArray());
-    console.log(mappedData);
+    // console.log(mappedData);
     return data;
   },
 
@@ -218,6 +234,20 @@ directory.CreateAccountView = Backbone.View.extend({
     return result;
   },
 
+  usernameExists: function(username, callback) {
+
+    var employeeCollection = new directory.Profile({ id: username });
+
+    employeeCollection.fetch({
+      success: function(docs) {
+        callback(docs);
+      },
+      error: function() {
+        callback(null);
+      }
+    });
+  },
+
   getEmailValue: function() {
     var email = '';
     $('input[type="text"]').each(function() {
@@ -228,6 +258,16 @@ directory.CreateAccountView = Backbone.View.extend({
       }
     });
     return email;
+  },
+
+  getUsernameId: function() {
+    var id = '';
+    $.each(this.collection.basic.attributes, function(key, attr) {
+      if(attr.label.toLowerCase().indexOf('username') !== -1) {
+        id = attr._id;
+      }
+    });
+    return id;
   },
 
   getUsernameValue: function() {

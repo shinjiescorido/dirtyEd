@@ -15,6 +15,7 @@ module.exports = function(app, user) {
 
     app.get('/profile/:username', showProfile)
     app.get('/profiles', showBasicProfiles)
+    app.get('/username/:username', usernameCheck)
 
     var custom_fields = require('../routes/custom_fields');
 
@@ -33,11 +34,45 @@ module.exports = function(app, user) {
                     if (err) {
 
                     } else {
-                        var test = ' ';
-                        test = employee.field[0].assignedValue[0];
-                        console.log(test);
-                        res.send(200, employee);
-                        console.log(username + ' retrieved.');
+                        if(employee) {
+                            var test = ' ';
+                            test = employee.field[0].assignedValue[0];
+                            console.log(test);
+                            res.send(200, employee);
+                            console.log(username + ' retrieved.');
+                        } else {
+                            res.send(404);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+
+    function usernameCheck(req, res) {
+        var username = req.params.username;
+        var UsernameFieldLabel = "Username";
+        var id;
+        user.customFieldsModel.findOne({label: UsernameFieldLabel}, function(err, doc) {
+            if (err) {
+                console.log(err);
+                res.send(500, err);
+            } else {
+                id = doc._id;
+                user.Users.findOne({field: {$elemMatch: {objectID: id, assignedValue: username}}, isActive: 1}, null, function(error, employee) {
+                    if (err) {
+
+                    } else {
+                        if(employee) {
+                            var test = ' ';
+                            test = employee.field[0].assignedValue[0];
+                            console.log(test);
+                            res.send(200, employee);
+                            console.log(username + ' retrieved.');
+                        } else {
+                            res.send(200, '');
+                        }
                     }
                 });
             }
