@@ -38,5 +38,7 @@ app.get('/employees/:id', wines.findById);
 app.get('/employees', wines.findAll);
 app.get('/api/employees/search/:id', wines.findAll)
 
-app.listen(8091);
-console.log('Listening on port 8090...');
+var port = 8091;
+
+app.listen(port);
+console.log('Listening on port ' + port + '...');
