@@ -4,9 +4,9 @@ directory.AccountModel = Backbone.Model.extend({
 
 });
 
-directory.Profile = Backbone.Model.extend({
+directory.BasicFieldValuesModel = Backbone.Model.extend({
 
-  urlRoot: '/username'
+  urlRoot: '/retrieveArrayOf'
 
 });
 
@@ -86,24 +86,21 @@ directory.CreateAccountView = Backbone.View.extend({
     var form = $('.createAccount'),
         self = this;
 
-    if(!this.hasError(form)) {
 
-      this.usernameExists(this.getUsernameValue(), function(usernameExists) {
+    this.formIsOkay(form, function(ok) {
+      if(ok) {
+	self.accountModel.set(self.getFormData(form));
+	self.accountModel.save();
+	self.successCreate();
 
-        if(usernameExists) {
-          self.showInvalidUsername('Username is already taken.');
-        } else {
-          self.accountModel.set(self.getFormData(form));
-          self.accountModel.save();
-          self.successCreate();
+	$('.actions button').prop('disabled', true);
 
-          setTimeout(function() {
-            (e.target.id === 'saveAndClose') ? top.location = '#' : form[0].reset();
-          }, (e.target.id === 'saveAndClose') ? 2000 : 1000);
-        }
-
-      });
-    }
+	setTimeout(function() {
+	  (e.target.id === 'saveAndClose') ? top.location = '#' : form[0].reset();
+	  $('.actions button').prop('disabled', false);
+	}, (e.target.id === 'saveAndClose') ? 2000 : 1000);
+      }
+    });
   },
 
   getFormData: function(form) {
@@ -146,7 +143,7 @@ directory.CreateAccountView = Backbone.View.extend({
         radios      = [];
 
     $.each(obj, function(key, attr) {
-      if(!$('.required[name="'+ attr.name +'"]').val()) {
+      if($('.required[name="'+ attr.name +'"]').val() === '') {
         emptyFields.push(attr.name);
       }
     });
@@ -184,31 +181,43 @@ directory.CreateAccountView = Backbone.View.extend({
     return (emptyFields.length) ? emptyFields : false;
   },
 
-  hasError: function(form) {
-    var result    = false,
+  formIsOkay: function(form, callback) {
+    var result    = true,
         email     = this.getEmailValue(),
-        username  = this.getUsernameValue();
+	username  = this.getUsernameValue(),
+	self      = this;
 
     this.removeErrors(form);
 
-    if((this.emptyFields(form.serializeArray())) || (!this.validEmail(email)) || (this.hasSpecialChar(username)) || (!this.validUsernameLength(username))) {
+    this.usernameExists(username, function(usernameExists) {
+      self.emailExists(email, function(emailExists) {
+	if((self.emptyFields(form.serializeArray())) || (!self.validEmail(email)) || (self.hasSpecialChar(username)) || (!self.validUsernameLength(username)) || (usernameExists) || (emailExists)) {
 
-      if(!this.validEmail(email)) {
-        this.showInvalidEmail();
-      }
-      if((!this.validUsernameLength(username))) {
-        this.showInvalidUsername('Username should be 6-10 characters.');
-      }
-      if((this.hasSpecialChar(username))) {
-        this.showInvalidUsername('Username should have no special characters.');
-      }
-      if(this.emptyFields(form.serializeArray())) {
-        this.showEmptyFields(this.emptyFields(form.serializeArray()));
-      }
+	  if(usernameExists) {
+	    self.showInvalidUsername('Username is already taken.');
+	  }
+	  if(emailExists) {
+	    self.showInvalidEmail('Email is already taken.');
+	  }
+	  if(!self.validEmail(email)) {
+	    self.showInvalidEmail('You have input an invalid Email Add.');
+	  }
+	  if((!self.validUsernameLength(username))) {
+	    self.showInvalidUsername('Username should be 6-10 characters.');
+	  }
+	  if((self.hasSpecialChar(username))) {
+	    self.showInvalidUsername('Username should have no special characters.');
+	  }
+	  if(self.emptyFields(form.serializeArray())) {
+	    self.showEmptyFields(self.emptyFields(form.serializeArray()));
+	  }
 
-      result = true;
-    }
-    return result;
+	  result = false;
+	}
+
+	callback(result);
+      });
+    });
   },
 
   hasSpecialChar: function(value) {
@@ -235,14 +244,32 @@ directory.CreateAccountView = Backbone.View.extend({
 
   usernameExists: function(username, callback) {
 
-    var employeeCollection = new directory.Profile({ id: username });
+    var basicFieldValuesModel = new directory.BasicFieldValuesModel({ id: 'username' }),
+	values = [];
 
-    employeeCollection.fetch({
-      success: function(docs) {
-        callback(docs);
-      },
-      error: function() {
-        callback(null);
+    basicFieldValuesModel.fetch({
+      success: function(data) {
+	$.each(data.attributes, function(key, attr) {
+	  values.push(attr.toLowerCase());
+	});
+
+	callback($.inArray(username.toLowerCase(), values) !== -1 ? true : false);
+      }
+    });
+  },
+
+  emailExists: function(email, callback) {
+
+    var basicFieldValuesModel = new directory.BasicFieldValuesModel({ id: 'email' }),
+	values = [];
+
+    basicFieldValuesModel.fetch({
+      success: function(data) {
+	$.each(data.attributes, function(key, attr) {
+	  values.push(attr.toLowerCase());
+	});
+
+	callback($.inArray(email.toLowerCase(), values) !== -1 ? true : false);
       }
     });
   },
@@ -319,7 +346,7 @@ directory.CreateAccountView = Backbone.View.extend({
     });
   },
 
-  showInvalidEmail: function() {
+  showInvalidEmail: function(message) {
     $('input[type="text"]').each(function() {
       var placeholder = $(this).attr('placeholder').toLowerCase(),
           _this       = $(this);
@@ -327,7 +354,7 @@ directory.CreateAccountView = Backbone.View.extend({
       if(placeholder.indexOf('email') !== -1) {
 
         _this.css('border', '1px solid #b94a48').parent().find('span').css('color', '#b94a48')
-        .html('You have input an invalid Email Add.').css('font-size', '14px');
+	.html(message).css('font-size', '14px');
 
       }
     });
@@ -384,13 +411,6 @@ directory.CreateAccountView = Backbone.View.extend({
         form    = $('.createAccount');
 
     form.attr('id', action);
-
-    // if(!this.hasError(form)) {
-    //   form[0].reset();
-    //   setTimeout(function() {
-    //     (action === 'saveAndClose') ? top.location = '#' : false;
-    //   }, 2000);
-    // }
   },
 
   mapArray: function(arr) {
