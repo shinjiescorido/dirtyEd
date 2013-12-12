@@ -194,10 +194,17 @@ directory.CreateAccountView = Backbone.View.extend({
 	if((self.emptyFields(form.serializeArray())) || (!self.validEmail(email)) || (self.hasSpecialChar(username)) || (!self.validUsernameLength(username)) || (usernameExists) || (emailExists)) {
 
 	  if(usernameExists) {
+<<<<<<< HEAD
 	    self.showInvalidUsername('Username already exist!');
 	  }
 	  if(emailExists) {
 	    self.showInvalidEmail('Email Address already exist!');
+=======
+	    self.showInvalidUsername('Username is already taken.');
+	  }
+	  if(emailExists) {
+	    self.showInvalidEmail('Email is already taken.');
+>>>>>>> Modified the username and email duplication error (1641).
 	  }
 	  if(!self.validEmail(email)) {
 	    self.showInvalidEmail('You have input an invalid Email Add.');

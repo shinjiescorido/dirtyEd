@@ -18,6 +18,12 @@ module.exports = function(app, user) {
 
     app.get('/retrieveArrayOf/:basicField', basicFieldValues);
 
+
+
+
+
+    app.get('/retrieveArrayOf/:basicField', basicFieldValues);
+
     var custom_fields = require('../routes/custom_fields');
 
 
@@ -148,6 +154,57 @@ module.exports = function(app, user) {
 		}
 	    }], function(err, docs) {
 		if (err) {
+		    res.send(500, err);
+		} else {
+
+		    docs.forEach(function(data) {
+			basicFields.push(data.field.assignedValue[0]);
+		    });
+
+		    res.send(200, basicFields);
+		}
+	    });
+	});
+    }
+
+    function basicFieldValues(req, res) {
+	var model       = user.customFieldsModel,
+	    basicField  = req.params.basicField,
+	    basicFields = [],
+	    basicFieldId;
+
+	async.parallel({
+	    username: function(callback) {
+		getID('Username', model, function(id) {
+		    callback(null, id);
+		});
+	    },
+	    email: function(callback) {
+		getID('Email', model, function(id) {
+		    callback(null, id);
+		});
+	    }
+	}, function(err, result) {
+
+	    switch(basicField) {
+		case 'username':
+		    basicFieldId = result.username;
+		    break;
+
+		case 'email':
+		    basicFieldId = result.email;
+		    break;
+
+		default:
+		    res.send(404);
+	    }
+
+	    user.Users.aggregate([
+		{ $unwind: "$field" },
+		{ $match: { "field.objectID": basicFieldId } },
+		{ $project: { "field.assignedValue": 1 } }
+	    ], function(err, docs) {
+		if(err) {
 		    res.send(500, err);
 		} else {
 
