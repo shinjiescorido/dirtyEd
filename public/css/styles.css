@@ -28,3 +28,9 @@ body {
     font-size: 13px;
 }
 
+.no-results {
+    padding: 5px 20px;
+    font-size: 14px;
+    font-style: italic;
+    color: #999;
+}

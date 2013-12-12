@@ -1,7 +1,9 @@
 module.exports = function(app, user) {
-
+    
     var async = require('async');
     app.get('/directory', listAllUsers);
+
+    app.get('/addphotourl', updateAll);
 
     // app.post('/add-user', addUser);
 
@@ -13,28 +15,36 @@ module.exports = function(app, user) {
     //temp delete to remove test items
     app.delete('/profile/:id', deleteUser);
 
-    app.get('/profile/:username', showProfile)
-    app.get('/profiles', showBasicProfiles)
-    app.get('/username/:username', usernameCheck)
-
+    app.get('/profile/:username', showProfile);
+    app.get('/profiles', showBasicProfiles);
+    app.get('/username/:username', usernameCheck);
+    
     var custom_fields = require('../routes/custom_fields');
-
-
     function showProfile(req, res) {
-        var username = req.params.username;
-        var UsernameFieldLabel = "Username";
-        var id;
-        user.customFieldsModel.findOne({label: UsernameFieldLabel}, function(err, doc) {
+        var username = req.params.username,
+            UsernameFieldLabel = "Username",
+            id;
+        user.customFieldsModel.findOne({
+            label: UsernameFieldLabel
+        }, function(err, doc) {
             if (err) {
                 console.log(err);
                 res.send(500, err);
             } else {
                 id = doc._id;
-                user.Users.findOne({field: {$elemMatch: {objectID: id, assignedValue: username}}, isActive: 1}, null, function(error, employee) {
+                user.Users.findOne({
+                    field: {
+                        $elemMatch: {
+                            objectID: id,
+                            assignedValue: username
+                        }
+                    },
+                    isActive: 1
+                }, null, function(error, employee) {
                     if (err) {
 
                     } else {
-                        if(employee) {
+                        if (employee) {
                             var test = ' ';
                             test = employee.field[0].assignedValue[0];
                             console.log(test);
@@ -54,17 +64,27 @@ module.exports = function(app, user) {
         var username = req.params.username;
         var UsernameFieldLabel = "Username";
         var id;
-        user.customFieldsModel.findOne({label: UsernameFieldLabel}, function(err, doc) {
+        user.customFieldsModel.findOne({
+            label: UsernameFieldLabel
+        }, function(err, doc) {
             if (err) {
                 console.log(err);
                 res.send(500, err);
             } else {
                 id = doc._id;
-                user.Users.findOne({field: {$elemMatch: {objectID: id, assignedValue: username}}, isActive: 1}, null, function(error, employee) {
+                user.Users.findOne({
+                    field: {
+                        $elemMatch: {
+                            objectID: id,
+                            assignedValue: username
+                        }
+                    },
+                    isActive: 1
+                }, null, function(error, employee) {
                     if (err) {
 
                     } else {
-                        if(employee) {
+                        if (employee) {
                             var test = ' ';
                             test = employee.field[0].assignedValue[0];
                             console.log(test);
@@ -81,35 +101,45 @@ module.exports = function(app, user) {
 
 
     //sample code to get specific value of a subdocument field
+
     function showUsername(req, res) {
         var username = req.params.username;
         var UsernameFieldLabel = "Username";
         var id;
-        user.customFieldsModel.findOne({label: UsernameFieldLabel}, function(err, doc) {
+        user.customFieldsModel.findOne({
+            label: UsernameFieldLabel
+        }, function(err, doc) {
             if (err) {
                 console.log(err);
                 res.send(500, err);
             } else {
                 id = doc._id;
-                user.Users.findOne({field: {$elemMatch: {objectID: id, assignedValue: username}}, isActive: 1}, 
-                    {
+                user.Users.findOne({
+                        field: {
+                            $elemMatch: {
+                                objectID: id,
+                                assignedValue: username
+                            }
+                        },
+                        isActive: 1
+                    }, {
                         'field.assignedValue': 1,
                         field: {
                             $elemMatch: {
-                                objectID: id, assignedValue: username
-                                }
-                            },
+                                objectID: id,
+                                assignedValue: username
+                            }
+                        },
                     },
-                     function(error, employee) {
-                        if (err) {}
-                            else {
-                        var test = ' ';
-                        test = employee.field[0].assignedValue[0];
-                        console.log(test);
-                        res.send(200, employee);
-                        console.log(username + ' retrieved.');
-                    }
-                });
+                    function(error, employee) {
+                        if (err) {} else {
+                            var test = ' ';
+                            test = employee.field[0].assignedValue[0];
+                            console.log(test);
+                            res.send(200, employee);
+                            console.log(username + ' retrieved.');
+                        }
+                    });
             }
         });
     }
@@ -119,53 +149,133 @@ module.exports = function(app, user) {
         var model = user.customFieldsModel;
 
         async.parallel([
-                function(callback) {
-                    getID('First Name', model, function(firstID) {
-                        callback(null, firstID);
-                    });
-                },
-                function(callback) {
-                    getID('Last Name', model, function(lastID) {
-                        callback(null, lastID);
-                    });
-                },
-                function(callback) {
-                    getID('Job Position', model, function(jobID) {
-                        callback(null, jobID);
-                    });
-                },
-                function(callback) {
-                    getID('Username', model, function(userID) {
-                        callback(null, userID);
-                    });
-                }
-            ], function(err, results) {
-                if(name) {
-                    user.Users.aggregate([
-                        {$match: {isActive: true, fullName: new RegExp('^(' + name + ')', "i")}},
-                        {$unwind: "$field"},
-                        {$match: {"field.objectID": {$in: [results[0], results[1], results[2], results[3]]}}},
-                        {$group:{_id:"$_id", "field":{$push:"$field"}}}
-                    ], function(error, doc){
+            function(callback) {
+                getID('First Name', model, function(firstID) {
+                    callback(null, firstID);
+                });
+            },
+            function(callback) {
+                getID('Last Name', model, function(lastID) {
+                    callback(null, lastID);
+                });
+            },
+            function(callback) {
+                getID('Job Position', model, function(jobID) {
+                    callback(null, jobID);
+                });
+            },
+            function(callback) {
+                getID('Username', model, function(userID) {
+                    callback(null, userID);
+                });
+            }
+        ], function(err, results) {
+            if (name) {
+                addBack(name, function(newname) {
+                    user.Users.aggregate([{
+                        $match: {
+                            isActive: true,
+                            fullName: {
+                                $regex: newname,
+                                $options: 'i'
+                            }
+                        }
+                    }, {
+                        $unwind: "$field"
+                    }, {
+                        $match: {
+                            "field.objectID": {
+                                $in: [results[0], results[1], results[2], results[3]]
+                            }
+                        }
+                    }, {
+                        $group: {
+                            _id: {
+                                _id: "$_id",
+                                fullName: "$fullName",
+                                photo: "$photo"
+                            },
+                            "field": {
+                                $push: "$field"
+                            }
+                        }
+                    }, {
+                        $project: {
+                            _id: "$_id._id",
+                            "fullName": "$_id.fullName",
+                            "photo": "$_id.photo",
+                            "field": 1
+                        }
+                    }], function(error, doc) {
                         res.send(200, doc);
+                        //console.log(doc);
                     });
-                } else {
-                    user.Users.aggregate([
-                        {$match: {isActive: true}},
-                        {$unwind: "$field"},
-                        {$match: {"field.objectID": {$in: [results[0], results[1], results[2], results[3]]}}},
-                        {$group:{_id:"$_id", "field":{$push:"$field"}}}
-                    ], function(error, doc){
-                        res.send(200, doc);
-                    });
-                }
-            })
+                });
+
+            } else {
+                user.Users.aggregate([{
+                    $match: {
+                        isActive: true
+                    }
+                }, {
+                    $unwind: "$field"
+                }, {
+                    $match: {
+                        "field.objectID": {
+                            $in: [results[0], results[1], results[2], results[3]]
+                        }
+                    }
+                }, {
+                    $group: {
+                        _id: {
+                            _id: "$_id",
+                            fullName: "$fullName",
+                            photo: "$photo"
+                        },
+                        "field": {
+                            $push: "$field"
+                        }
+                    }
+                }, {
+                    $project: {
+                        _id: "$_id._id",
+                        "fullName": "$_id.fullName",
+                        "photo": "$_id.photo",
+                        "field": 1
+                    }
+                }], function(error, doc) {
+                    res.send(200, doc);
+                    //console.log(doc);
+                });
+            }
+        })
+    }
+
+    //adds '/' to each special character to appear on string
+
+    function addBack(str, callback) {
+        var newname = str;
+        var x = str.length;
+        var specialChars = "<>@!#$%^&*()_+[]{}?:;|'\"\\,./~`-=";
+        for (var i = 0, j = 0; i < str.length; i++, j++) {
+            if (specialChars.indexOf(str.charAt(i)) != -1) {
+                newname = newname.substring(0, j) + '\\' + newname.substring(j++, x++);
+            } else {
+                newname = newname.substring(0, j) + newname.substring(j, x);
+            }
+            if (i == str.length - 1) {
+                callback(newname);
+            }
+        }
     }
 
     //gets the ID of a specific label in custom fields 
-    function getID (_label, model, callback) {
+
+    function getID(_label, model, callback) {
         var id;
-        model.findOne({label: _label}, function(err, doc) {
+        model.findOne({
+            label: _label
+        }, function(err, doc) {
             if (err) {
                 console.log(err)
             } else {
@@ -176,15 +286,23 @@ module.exports = function(app, user) {
 
     function showFieldValue(userID, object_ID, callback) {
         console.log(userID + ' ' + object_ID);
-        user.Users.findOne({_id: userID}, {'field.assignedValue': 1,
-            field: { $elemMatch: { objectID: object_ID }}}, function(err, doc) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    //console.log(doc);
-                    callback(doc.field[0].assignedValue[0]);
+        user.Users.findOne({
+            _id: userID
+        }, {
+            'field.assignedValue': 1,
+            field: {
+                $elemMatch: {
+                    objectID: object_ID
                 }
-            });
+            }
+        }, function(err, doc) {
+            if (err) {
+                console.log(err);
+            } else {
+                //console.log(doc);
+                callback(doc.field[0].assignedValue[0]);
+            }
+        });
     }
 
     function listAllUsers(req, res) {
@@ -195,7 +313,9 @@ module.exports = function(app, user) {
         if (req.query.limit) {
             options.limit = req.query.limit;
         }
-        user.Users.find({ isActive: 1 }, null, options, function (err, docs) {
+        user.Users.find({
+            isActive: 1
+        }, null, options, function(err, docs) {
             if (err) {
                 //console.log(err);
                 res.send(500, err);
@@ -205,7 +325,7 @@ module.exports = function(app, user) {
         });
     }
 
-    function addusertemp(req,res) {
+    function addusertemp(req, res) {
         // var employees = {
         //         "field": [
         //                     {"objectID": "5297d80a025a83e404000004", "assignedValue": ["Rosana"], "requestedValue":[""] },
@@ -220,11 +340,11 @@ module.exports = function(app, user) {
         //                  ],
         //         "isActive": 0
         //     };
-        user.Users.create(req.body, function (err, doc) {
+        user.Users.create(req.body, function(err, doc) {
             console.log(req.body);
-             if (err) {
-                 console.log(err);
-             } else {
+            if (err) {
+                console.log(err);
+            } else {
                 res.send(200, doc)
                 console.log('ID ' + doc._id + ' Added to Users');
                 //Set fullname
@@ -239,48 +359,65 @@ module.exports = function(app, user) {
                             callback(null, lastID);
                         });
                     }
-                    ],  function(error, results) {
-                        async.parallel([
-                            function(callback) {
-                                showFieldValue(doc._id, results[0], function(firstName) {
-                                    callback(null, firstName);
-                                });
-                            },
-                            function(callback) {
-                                showFieldValue(doc._id, results[1], function(lastName) {
-                                    callback(null, lastName);
-                                });
+                ], function(error, results) {
+                    async.parallel([
+                        function(callback) {
+                            showFieldValue(doc._id, results[0], function(firstName) {
+                                callback(null, firstName);
+                            });
+                        },
+                        function(callback) {
+                            showFieldValue(doc._id, results[1], function(lastName) {
+                                callback(null, lastName);
+                            });
+                        }
+                    ], function(er, result) {
+                        var full = result[0] + ' ' + result[1];
+                        user.Users.update({
+                            _id: doc._id
+                        }, {
+                            fullName: full,
+                            photo: 'pics/SINet.gif'
+                        }, function(e, d) {
+                            if (e) {
+                                console.log(e);
+                            } else {
+                                console.log('Fullname Added.');
                             }
-                        ], function(er, result) {
-                            var full = result[0] + ' ' + result[1]
-                            user.Users.update({_id: doc._id}, {fullName: full}, function(e, d) {
-                                if (e) {
-                                    console.log(e);
-                                } else {
-                                    console.log('Fullname Added.');
-                                }
-                            } )
-                        })
+                        });
+                    });
                 });
-             }
-         });    
+            }
+        });
     }
 
     //curl -X DELETE 'http://localhost:8091/profile/[id]'
-    function deleteUser (req, res) {
+
+    function deleteUser(req, res) {
         var id = req.params.id;
-        user.Users.findByIdAndRemove(id, function (err, doc) {
+        user.Users.findByIdAndRemove(id, function(err, doc) {
             if (err) {
-              console.log(err);
-              res.send(404, err);
+                console.log(err);
+                res.send(404, err);
             } else {
-              res.send(200, doc);
+                res.send(200, doc);
             }
-        })
+        });
     }
 
 
-    
+    //temp function to update all users for additional fields like photo
+    function updateAll(req,res) {
+        user.Users.update(
+            { "isActive": true },
+            { $set: { photo: 'pics/SINet.gif'} },
+            { multi: true }, function(err,doc) {
+                res.send(200, doc);
+            }
+        );
+    }
+
+
 
 
 }

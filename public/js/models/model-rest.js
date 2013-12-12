@@ -12,6 +12,9 @@ directory.Employee = Backbone.Model.extend({
 directory.EmployeeCollection = Backbone.Collection.extend({
 
     model: directory.Employee,
+    comparator: function(item) {
+        return item.get('fullName').toLowerCase();
+    },
     url:"/profiles"
 
 });

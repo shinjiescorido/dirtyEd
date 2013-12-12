@@ -44,7 +44,7 @@ module.exports = function(app, custom_fields) {
                 res.send(500, err);
             } else {
                 res.send(200, docs);
-                console.log(docs);
+                //console.log(docs);
             }
         });
     }
@@ -68,7 +68,7 @@ module.exports = function(app, custom_fields) {
                 res.send(500, err);
             } else {
                 res.send(200, docs);
-                console.log(docs);
+                //console.log(docs);
             }
         });
     }
