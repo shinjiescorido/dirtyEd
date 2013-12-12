@@ -191,31 +191,31 @@ directory.CreateAccountView = Backbone.View.extend({
 
     this.usernameExists(username, function(usernameExists) {
       self.emailExists(email, function(emailExists) {
-	if((self.emptyFields(form.serializeArray())) || (!self.validEmail(email)) || (self.hasSpecialChar(username)) || (!self.validUsernameLength(username)) || (usernameExists) || (emailExists)) {
+      	if((self.emptyFields(form.serializeArray())) || (!self.validEmail(email)) || (self.hasSpecialChar(username)) || (!self.validUsernameLength(username)) || (usernameExists) || (emailExists)) {
 
-	  if(usernameExists) {
-	    self.showInvalidUsername('Username is already taken.');
-	  }
-	  if(emailExists) {
-	    self.showInvalidEmail('Email is already taken.');
-	  }
-	  if(!self.validEmail(email)) {
-	    self.showInvalidEmail('You have input an invalid Email Add.');
-	  }
-	  if((!self.validUsernameLength(username))) {
-	    self.showInvalidUsername('Username should be 6-10 characters.');
-	  }
-	  if((self.hasSpecialChar(username))) {
-	    self.showInvalidUsername('Username should have no special characters.');
-	  }
-	  if(self.emptyFields(form.serializeArray())) {
-	    self.showEmptyFields(self.emptyFields(form.serializeArray()));
-	  }
+      	  if(usernameExists) {
+      	    self.showInvalidUsername('Username already exist!');
+      	  }
+      	  if(emailExists) {
+      	    self.showInvalidEmail('Email Address already exist!');
+      	  }
+      	  if(!self.validEmail(email)) {
+      	    self.showInvalidEmail('You have input an invalid Email Add.');
+      	  }
+      	  if((!self.validUsernameLength(username))) {
+      	    self.showInvalidUsername('Username should be 6-10 characters.');
+      	  }
+      	  if((self.hasSpecialChar(username))) {
+      	    self.showInvalidUsername('Username should have no special characters.');
+      	  }
+      	  if(self.emptyFields(form.serializeArray())) {
+      	    self.showEmptyFields(self.emptyFields(form.serializeArray()));
+      	  }
 
-	  result = false;
-	}
+      	  result = false;
+      	}
 
-	callback(result);
+      	callback(result);
       });
     });
   },
