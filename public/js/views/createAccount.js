@@ -194,10 +194,10 @@ directory.CreateAccountView = Backbone.View.extend({
 	if((self.emptyFields(form.serializeArray())) || (!self.validEmail(email)) || (self.hasSpecialChar(username)) || (!self.validUsernameLength(username)) || (usernameExists) || (emailExists)) {
 
 	  if(usernameExists) {
-	    self.showInvalidUsername('Username is already taken.');
+	    self.showInvalidUsername('Username already exist!');
 	  }
 	  if(emailExists) {
-	    self.showInvalidEmail('Email is already taken.');
+	    self.showInvalidEmail('Email Address already exist!');
 	  }
 	  if(!self.validEmail(email)) {
 	    self.showInvalidEmail('You have input an invalid Email Add.');
