@@ -18,8 +18,11 @@ module.exports = function(app, user) {
     app.get('/profile/:username', showProfile);
     app.get('/profiles', showBasicProfiles);
    
-    
+    app.get('/retrieveArrayOf/:basicField', basicFieldValues);
+    app.get('/retrieveArrayOf/:basicField', basicFieldValues);
+
     var custom_fields = require('../routes/custom_fields');
+    
     function showProfile(req, res) {
         var username = req.params.username;
         var UsernameFieldLabel = "Username";
