@@ -17,50 +17,10 @@ module.exports = function(app, user) {
 
     app.get('/profile/:username', showProfile);
     app.get('/profiles', showBasicProfiles);
-    app.get('/username/:username', usernameCheck);
+   
     
     var custom_fields = require('../routes/custom_fields');
     function showProfile(req, res) {
-        var username = req.params.username,
-            UsernameFieldLabel = "Username",
-            id;
-        user.customFieldsModel.findOne({
-            label: UsernameFieldLabel
-        }, function(err, doc) {
-            if (err) {
-                console.log(err);
-                res.send(500, err);
-            } else {
-                id = doc._id;
-                user.Users.findOne({
-                    field: {
-                        $elemMatch: {
-                            objectID: id,
-                            assignedValue: username
-                        }
-                    },
-                    isActive: 1
-                }, null, function(error, employee) {
-                    if (err) {
-
-                    } else {
-                        if (employee) {
-                            var test = ' ';
-                            test = employee.field[0].assignedValue[0];
-                            console.log(test);
-                            res.send(200, employee);
-                            console.log(username + ' retrieved.');
-                        } else {
-                            res.send(404);
-                        }
-                    }
-                });
-            }
-        });
-    }
-
-
-    function usernameCheck(req, res) {
         var username = req.params.username;
         var UsernameFieldLabel = "Username";
         var id;
@@ -91,7 +51,7 @@ module.exports = function(app, user) {
                             res.send(200, employee);
                             console.log(username + ' retrieved.');
                         } else {
-                            res.send(200, '');
+                            res.send(404);
                         }
                     }
                 });
@@ -141,6 +101,114 @@ module.exports = function(app, user) {
                         }
                     });
             }
+        });
+    }
+
+    function basicFieldValues(req, res) {
+        var model = user.customFieldsModel,
+            basicField = req.params.basicField,
+            basicFields = [],
+            basicFieldId;
+
+        async.parallel({
+            username: function(callback) {
+                getID('Username', model, function(id) {
+                    callback(null, id);
+                });
+            },
+            email: function(callback) {
+                getID('Email', model, function(id) {
+                    callback(null, id);
+                });
+            }
+        }, function(err, result) {
+
+            switch (basicField) {
+                case 'username':
+                    basicFieldId = result.username;
+                    break;
+
+                case 'email':
+                    basicFieldId = result.email;
+                    break;
+
+                default:
+                    res.send(404);
+            }
+
+            user.Users.aggregate([{
+                $unwind: "$field"
+            }, {
+                $match: {
+                    "field.objectID": basicFieldId
+                }
+            }, {
+                $project: {
+                    "field.assignedValue": 1
+                }
+            }], function(err, docs) {
+                if (err) {
+                    res.send(500, err);
+                } else {
+
+                    docs.forEach(function(data) {
+                        basicFields.push(data.field.assignedValue[0]);
+                    });
+
+                    res.send(200, basicFields);
+                }
+            });
+        });
+    }
+
+    function basicFieldValues(req, res) {
+        var model       = user.customFieldsModel,
+            basicField  = req.params.basicField,
+            basicFields = [],
+            basicFieldId;
+
+        async.parallel({
+            username: function(callback) {
+                getID('Username', model, function(id) {
+                    callback(null, id);
+                });
+            },
+            email: function(callback) {
+                getID('Email', model, function(id) {
+                    callback(null, id);
+                });
+            }
+        }, function(err, result) {
+
+            switch(basicField) {
+                case 'username':
+                    basicFieldId = result.username;
+                    break;
+
+                case 'email':
+                    basicFieldId = result.email;
+                    break;
+
+                default:
+                    res.send(404);
+            }
+
+            user.Users.aggregate([
+                { $unwind: "$field" },
+                { $match: { "field.objectID": basicFieldId } },
+                { $project: { "field.assignedValue": 1 } }
+            ], function(err, docs) {
+                if(err) {
+                    res.send(500, err);
+                } else {
+
+                    docs.forEach(function(data) {
+                        basicFields.push(data.field.assignedValue[0]);
+                    });
+
+                    res.send(200, basicFields);
+                }
+            });
         });
     }
 
@@ -415,6 +483,59 @@ module.exports = function(app, user) {
                 res.send(200, doc);
             }
         );
+    }
+
+    app.get('/profileTest/:username', function(req, res) {
+
+        async.parallel({
+            usernameId: function(callback) {
+                user.customFieldsModel.findOne({
+                    label: 'Username'
+                }, function(err, docs) {
+                    if (err) res.send(500, err);
+                    callback(null, docs._id);
+                });
+            },
+            customFields: function(callback) {
+                user.customFieldsModel.find({}, function(err, docs) {
+                    if (err) res.send(500, err);
+                    callback(null, docs);
+                });
+            },
+            userInfo: function(callback) {
+                this.usernameId(function(err, usernameId) {
+                    user.Users.aggregate([{
+                        $match: {
+                            "field.objectID": usernameId,
+                            "field.assignedValue": req.params.username
+                        }
+                    }], function(err, docs) {
+                        if (err) res.send(err);
+                        callback(null, docs[0]);
+                    });
+                });
+            }
+        }, function(err, result) {
+            async.forEach(result.userInfo.field, function(item, callback) {
+                console.log(item);
+                callback();
+            });
+            res.send(200, result.userInfo);
+        });
+
+    });
+
+    function getData(id, model, callback) {
+
+        model.findOne({ _id: id }, function(err, docs) {
+            if(err) {
+                console.log(err);
+                res.send(500);
+            } else {
+                callback(docs);
+            }
+        });
+
     }
 
 
