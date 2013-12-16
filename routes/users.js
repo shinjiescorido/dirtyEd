@@ -1,6 +1,16 @@
 module.exports = function(app, user) {
-    
+
     var async = require('async');
+    var nodemailer = require('nodemailer');
+    var crypto = require('crypto');
+
+    var smtpTransport = nodemailer.createTransport("SMTP", {
+        auth: {
+            user: "chad.dumadag@gmail.com",
+            pass: "jahlove2"
+        }
+    });
+
     app.get('/directory', listAllUsers);
 
     app.get('/addphotourl', updateAll);
@@ -17,12 +27,11 @@ module.exports = function(app, user) {
 
     app.get('/profile/:username', showProfile);
     app.get('/profiles', showBasicProfiles);
-   
-    app.get('/retrieveArrayOf/:basicField', basicFieldValues);
+
     app.get('/retrieveArrayOf/:basicField', basicFieldValues);
 
     var custom_fields = require('../routes/custom_fields');
-    
+
     function showProfile(req, res) {
         var username = req.params.username;
         var UsernameFieldLabel = "Username";
@@ -151,57 +160,6 @@ module.exports = function(app, user) {
                 }
             }], function(err, docs) {
                 if (err) {
-                    res.send(500, err);
-                } else {
-
-                    docs.forEach(function(data) {
-                        basicFields.push(data.field.assignedValue[0]);
-                    });
-
-                    res.send(200, basicFields);
-                }
-            });
-        });
-    }
-
-    function basicFieldValues(req, res) {
-        var model       = user.customFieldsModel,
-            basicField  = req.params.basicField,
-            basicFields = [],
-            basicFieldId;
-
-        async.parallel({
-            username: function(callback) {
-                getID('Username', model, function(id) {
-                    callback(null, id);
-                });
-            },
-            email: function(callback) {
-                getID('Email', model, function(id) {
-                    callback(null, id);
-                });
-            }
-        }, function(err, result) {
-
-            switch(basicField) {
-                case 'username':
-                    basicFieldId = result.username;
-                    break;
-
-                case 'email':
-                    basicFieldId = result.email;
-                    break;
-
-                default:
-                    res.send(404);
-            }
-
-            user.Users.aggregate([
-                { $unwind: "$field" },
-                { $match: { "field.objectID": basicFieldId } },
-                { $project: { "field.assignedValue": 1 } }
-            ], function(err, docs) {
-                if(err) {
                     res.send(500, err);
                 } else {
 
@@ -396,21 +354,42 @@ module.exports = function(app, user) {
         });
     }
 
+    function sendEmail(to, from, subject, html) {
+        var mailOptions = {
+            to: to,
+            from: from,
+            subject: subject,
+            html: html
+        }
+
+        smtpTransport.sendMail(mailOptions, function(err, res) {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(res);
+                console.log("Message sent: " + res.message);
+            }
+        });
+    }
+
+    function emailVerificationHTML(token) {
+        var html = '<a href="http://localhost:8091/token/' + token + '">TEST EMAIL</a>';
+
+        return html;
+    }
+
     function addusertemp(req, res) {
-        // var employees = {
-        //         "field": [
-        //                     {"objectID": "5297d80a025a83e404000004", "assignedValue": ["Rosana"], "requestedValue":[""] },
-        //                     {"objectID": "5297d80f025a83e404000005", "assignedValue": [" "], "requestedValue":[""] },
-        //                     {"objectID": "5297d815025a83e404000006", "assignedValue": ["Ferolin"], "requestedValue":[""] },
-        //                     {"objectID": "5297d81b025a83e404000007", "assignedValue": ["Scrum Master"], "requestedValue":[""] },
-        //                     {"objectID": "5297d822025a83e404000008", "assignedValue": ["rosana.ferolin@globalzeal.net"], "requestedValue":[""] },
-        //                     {"objectID": "5297d829025a83e404000009", "assignedValue": [" "], "requestedValue":[""] },
-        //                     {"objectID": "52982cf6da4555da60000002", "assignedValue": ["Rosana.Ferolin2"], "requestedValue":[""] },
-        //                     {"objectID": "5297d856025a83e40400000a", "assignedValue": ["Sana - Not Active"], "requestedValue":[""] },
-        //                     {"objectID": "5297ef021dd16c491c000002", "assignedValue": ["Rosana.Ferolin"],"requestedValue":["Javascript","HTML"] },
-        //                  ],
-        //         "isActive": 0
-        //     };
+        //  DUMMY EMAIL CREDENTIALS
+        var recipient = 'facebook.dummy.po@gmail.com';              // req.body.email
+        var sender = '<chad.dumadag@gmail.com>';                    //
+        var subject = 'DUMMY EMAIL';                                //
+        var htmlContent = emailVerificationHTML(req.body.token);    // HTML Content
+
+        crypto.randomBytes(32, function(ex, buf) {
+            var token = buf.toString('hex');
+            req.body.token = token;
+        });
+
         user.Users.create(req.body, function(err, doc) {
             console.log(req.body);
             if (err) {
@@ -418,6 +397,9 @@ module.exports = function(app, user) {
             } else {
                 res.send(200, doc)
                 console.log('ID ' + doc._id + ' Added to Users');
+
+                sendEmail(recipient, sender, subject, htmlContent);
+
                 //Set fullname
                 async.parallel([
                     function(callback) {
@@ -444,6 +426,7 @@ module.exports = function(app, user) {
                         }
                     ], function(er, result) {
                         var full = result[0] + ' ' + result[1];
+
                         user.Users.update({
                             _id: doc._id
                         }, {
@@ -478,14 +461,19 @@ module.exports = function(app, user) {
 
 
     //temp function to update all users for additional fields like photo
-    function updateAll(req,res) {
-        user.Users.update(
-            { "isActive": true },
-            { $set: { photo: 'pics/SINet.gif'} },
-            { multi: true }, function(err,doc) {
-                res.send(200, doc);
+
+    function updateAll(req, res) {
+        user.Users.update({
+            "isActive": true
+        }, {
+            $set: {
+                photo: 'pics/SINet.gif'
             }
-        );
+        }, {
+            multi: true
+        }, function(err, doc) {
+            res.send(200, doc);
+        });
     }
 
     app.get('/profileTest/:username', function(req, res) {
@@ -519,10 +507,9 @@ module.exports = function(app, user) {
                 });
             }
         }, function(err, result) {
-            async.forEach(result.userInfo.field, function(item, callback) {
-                console.log(item);
-                callback();
-            });
+            for (var i = 0; i < result.userInfo.field.length; i++) {
+
+            }
             res.send(200, result.userInfo);
         });
 
@@ -530,8 +517,10 @@ module.exports = function(app, user) {
 
     function getData(id, model, callback) {
 
-        model.findOne({ _id: id }, function(err, docs) {
-            if(err) {
+        model.findOne({
+            _id: id
+        }, function(err, docs) {
+            if (err) {
                 console.log(err);
                 res.send(500);
             } else {
@@ -540,8 +529,5 @@ module.exports = function(app, user) {
         });
 
     }
-
-
-
 
 }
