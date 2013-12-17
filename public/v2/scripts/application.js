@@ -1,24 +1,45 @@
 define([
-	'backbone',
-	'communicator',
-	'hbs!tmpl/welcome'
-],
+        'backbone',
+        'communicator',
+        //'hbs!tmpl/welcome',
+        'views/layout/layout-main',
+        'views/sample'
+    ],
 
-function( Backbone, Communicator, Welcome_tmpl ) {
-    'use strict';
+    function(Backbone, Communicator, Welcome_tmpl, samp) {
+        'use strict';
 
-	var welcomeTmpl = Welcome_tmpl;
+        var welcomeTmpl = Welcome_tmpl;
 
-	var App = new Backbone.Marionette.Application();
+        var App = new Backbone.Marionette.Application();
 
-	/* Add application regions here */
-	App.addRegions({});
+        App.addRegions({});
 
-	/* Add initializers here */
-	App.addInitializer( function () {
-		document.body.innerHTML = welcomeTmpl({ success: "CONGRATS!" });
-		Communicator.mediator.trigger("APP:START");
-	});
+        App.addInitializer(function() {
+            var layout = new Welcome_tmpl();
 
-	return App;
-});
+            //Render that layout
+            layout.render();
+
+            //Make the model
+            // var simpleModel = new APP.Models.simpleModel({
+            //     "field1": "foo",
+            //     "field2": "bar"
+            // });
+
+
+            //layout.contentx.show(new samp(//{
+                //model: simpleModel
+            //}
+            //));
+
+        layout.contentx.show(new samp());
+
+        //console.log(layout.el)
+
+            $('body').html(layout.el);
+            Communicator.mediator.trigger("APP:START");
+        });
+
+        return App;
+    });
