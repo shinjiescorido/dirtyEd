@@ -1,10 +1,17 @@
 require([
-	'backbone',
-	'application',
-	'regionManager'
-],
-function ( Backbone, App ) {
-    'use strict';
+        'backbone',
+        'application',
+        'regionManager',
+        'routers/main'
+    ],
+    function(Backbone, App, router) {
+        'use strict';
 
-	App.start();
-});
+        App.Router = router;
+
+        App.start();
+
+        if (Backbone.history) {
+            Backbone.history.start();
+        }
+    });
