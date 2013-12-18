@@ -172,16 +172,19 @@ directory.cfListItemView = Backbone.View.extend({
 
                 var parTr = $(ev.target).closest('tr');
                 var lbl = parTr.find('#lableParam');
-                var isValid = tz_err_inline(lbl, !(lbl.val().length > 0), "Please fill up empty field.")
-
+               // console.log(isNullOrWhiteSpace(lbl.val()));
+                var isValid = tz_err_inline(lbl, isNullOrWhiteSpace(lbl.val()), "Please fill up empty field.")
                 if (getIndexById(parTr.find('#fieldTypeDDownId').val()).mult == 1) {
                     var val = parTr.find('#valyy');
+                    var temp = true;
+                    var obj = val.closest("td").find("input[type=text]");
 
-                    val.closest("td").find("input[type=text]").each(function() {
-                        isValid = tz_err_inline($(this), isNullOrWhiteSpace($(this).val()), "Please fill up empty field.") && isValid
+                    obj.each(function() {
+                        temp = !isNullOrWhiteSpace($(this).val()) && temp;
                     });
+                    tz_err_inline(obj.first(), !temp,"Please fill up empty field.")
+                    isValid = isValid && temp;
                 }
-
                 if (isValid) {
                     //Call below for success
                     //$("#info-cust").html("success message")
@@ -230,6 +233,8 @@ directory.cfListItemView = Backbone.View.extend({
                             $("#err-basic").css('display', 'block').css('visibility', 'visible');
                         }
                     });
+                } else {
+                    console.log("please fill up empty fields");
                 }
 
                 return false;
