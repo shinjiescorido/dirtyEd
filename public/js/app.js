@@ -62,7 +62,8 @@ directory.Router = Backbone.Router.extend({
         "employees/:id": "employeeDetails",
         "login": "login",
         "custfield": "custfield",
-        "createAccount": "createAccount"
+	"createAccount": "createAccount",
+	"profile/:username": "profile"
     },
 
     initialize: function() {
@@ -140,6 +141,38 @@ directory.Router = Backbone.Router.extend({
         directory.shellView.selectMenuItem('createAccount-menu');
     },
 
+    profile: function(username) {
+	var userProfile  = new directory.Profile({ id: username }),
+	    customFields = new directory.CustFieldsCollection,
+	    self         = this;
+
+	userProfile.fetch({
+	    success: function(userData) {
+
+		customFields.fetch({
+		    success: function(fieldData) {
+			self.$content.html(new directory.ProfileView({
+			    collection: {
+				user    : userData,
+				fields  : fieldData
+			    }
+			}).render().el);
+		    }
+		});
+	    }
+	});
+
+	if (!directory.profileView) {
+	    directory.profileView = new directory.ProfileView();
+	    directory.profileView.render();
+	} else {
+	    console.log('reusing home view');
+	    directory.profileView.delegateEvents(); // delegate events when the view is recycled
+	}
+	this.$content.html(directory.profileView.el);
+	directory.shellView.selectMenuItem('');
+    },
+
     employeeDetails: function(id) {
         var employee = new directory.Employee({
             id: id
@@ -215,7 +248,8 @@ $(document).on("ready", function() {
             "cfEditItemViewLbl",
             "CreateAccountView",
             "FormFieldListItemView",
-            "ModalView"
+	    "ModalView",
+	    "ProfileView"
         ],
         function() {
             directory.router = new directory.Router();

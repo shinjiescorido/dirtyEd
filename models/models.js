@@ -40,9 +40,10 @@ var userSchema = mongoose.Schema({
     isActive: Boolean,
     password: String,
     fullName: String,
-    photo: String,
-    token: String
+    photo: String
 });
+
+userSchema.add({ token: String });
 
 var notificationsSchema = mongoose.Schema({
     sender: ObjectId,

@@ -1,0 +1,74 @@
+<br />
+<br />
+
+<p style="float: left;"><img class="photo" src="<%- photo %>" width="160" height="160" /></p>
+<h3><%- fullName %></h3>
+<h4><%- jobPosition %></h4>
+<div>
+    <br />
+    <a href="#edit" class="profileAction">Edit</a>
+    <a href="#delete" class="profileAction">Delete</a>
+    <a href="#resetPassword" class="profileAction">Reset Password</a>
+</div>
+<br clear="all" />
+<br clear="all" />
+
+	<table class="table table-striped">
+	    <%
+		field.forEach(function(data) {
+		    if(data.attributes) {
+	    %>
+	    <tr>
+		<td style="width: 200px;"><strong> <%- data.attributes.label %>:</strong></td>
+		<td><%- data.assignedValue[0] %></td>
+		<td>
+		<%
+		    if(data.assignedValue.length > 1) {
+		%>
+		    <ul class="inline">
+			<li>
+			    <a href="#view" class="btn actions" data-title>
+				<i class="icon-eye-open"></i>
+			    </a>
+			</li>
+			<li>
+			    <a href="#approve" class="btn actions" data-title>
+				<i class="icon-thumbs-up"></i>
+			    </a>
+			</li>
+			<li>
+			    <a href="#reject" class="btn actions" data-title>
+				<i class="icon-thumbs-down"></i>
+			    </a>
+			</li>
+		    </ul>
+		<%
+		    }
+		%>
+		</td>
+	    </tr>
+	    <%
+		    }
+		});
+	    %>
+
+	    <%
+	    %>
+	</table>
+
+	<div class="alert alert-warning">
+	  <h4 class="alert-heading">Warning</h4>
+	  The phone numbers, email addresses, and Twitter handlers are fake.
+	</div>
+
+<style type="text/css">
+    .photo {
+	margin-right: 40px;
+    }
+    a.profileAction {
+	padding: 20px 20px 20px 0px;
+    }
+    .profileAction li a {
+	cursor: pointer;
+    }
+</style>

@@ -19,6 +19,10 @@ directory.EmployeeCollection = Backbone.Collection.extend({
 
 });
 
+directory.Profile = Backbone.Model.extend({
+    urlRoot: "/profile"
+});
+
 directory.BasicField = Backbone.Model.extend({
 
     urlRoot:"/custom-fields/1",

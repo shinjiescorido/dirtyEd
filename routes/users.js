@@ -366,7 +366,7 @@ module.exports = function(app, user) {
             if (err) {
                 console.log(err);
             } else {
-                console.log(res);
+		// console.log(res);
                 console.log("Message sent: " + res.message);
             }
         });
@@ -379,69 +379,69 @@ module.exports = function(app, user) {
     }
 
     function addusertemp(req, res) {
-        //  DUMMY EMAIL CREDENTIALS
-        var recipient = 'facebook.dummy.po@gmail.com';              // req.body.email
-        var sender = '<chad.dumadag@gmail.com>';                    //
-        var subject = 'DUMMY EMAIL';                                //
-        var htmlContent = emailVerificationHTML(req.body.token);    // HTML Content
-
         crypto.randomBytes(32, function(ex, buf) {
             var token = buf.toString('hex');
             req.body.token = token;
-        });
 
-        user.Users.create(req.body, function(err, doc) {
-            console.log(req.body);
-            if (err) {
-                console.log(err);
-            } else {
-                res.send(200, doc)
-                console.log('ID ' + doc._id + ' Added to Users');
+	    user.Users.create(req.body, function(err, doc) {
+		// console.log(req.body);
+		if (err) {
+		    console.log(err);
+		} else {
+		    //  DUMMY EMAIL CREDENTIALS
+		    var recipient = 'facebook.dummy.po@gmail.com'; // req.body.email
+		    var sender = '<chad.dumadag@gmail.com>'; //
+		    var subject = 'DUMMY EMAIL'; //
+		    var htmlContent = emailVerificationHTML(req.body.token); // HTML Content
 
-                sendEmail(recipient, sender, subject, htmlContent);
+		    res.send(200, doc)
+		    console.log('ID ' + doc._id + ' Added to Users');
 
-                //Set fullname
-                async.parallel([
-                    function(callback) {
-                        getID('First Name', user.customFieldsModel, function(firstID) {
-                            callback(null, firstID);
-                        });
-                    },
-                    function(callback) {
-                        getID('Last Name', user.customFieldsModel, function(lastID) {
-                            callback(null, lastID);
-                        });
-                    }
-                ], function(error, results) {
+		    sendEmail(recipient, sender, subject, htmlContent);
+
+		    //Set fullname
                     async.parallel([
                         function(callback) {
-                            showFieldValue(doc._id, results[0], function(firstName) {
-                                callback(null, firstName);
+			    getID('First Name', user.customFieldsModel, function(firstID) {
+				callback(null, firstID);
                             });
                         },
                         function(callback) {
-                            showFieldValue(doc._id, results[1], function(lastName) {
-                                callback(null, lastName);
+			    getID('Last Name', user.customFieldsModel, function(lastID) {
+				callback(null, lastID);
                             });
                         }
-                    ], function(er, result) {
-                        var full = result[0] + ' ' + result[1];
-
-                        user.Users.update({
-                            _id: doc._id
-                        }, {
-                            fullName: full,
-                            photo: 'pics/SINet.gif'
-                        }, function(e, d) {
-                            if (e) {
-                                console.log(e);
-                            } else {
-                                console.log('Fullname Added.');
+		    ], function(error, results) {
+			async.parallel([
+			    function(callback) {
+				showFieldValue(doc._id, results[0], function(firstName) {
+				    callback(null, firstName);
+				});
+			    },
+			    function(callback) {
+				showFieldValue(doc._id, results[1], function(lastName) {
+				    callback(null, lastName);
+				});
                             }
+			], function(er, result) {
+			    var full = result[0] + ' ' + result[1];
+
+			    user.Users.update({
+				_id: doc._id
+			    }, {
+				fullName: full,
+				photo: 'pics/SINet.gif'
+			    }, function(e, d) {
+				if (e) {
+				    console.log(e);
+				} else {
+				    console.log('Fullname Added.');
+				}
+			    });
                         });
                     });
-                });
-            }
+		}
+	    });
         });
     }
 
@@ -488,7 +488,7 @@ module.exports = function(app, user) {
                 });
             },
             customFields: function(callback) {
-                user.customFieldsModel.find({}, function(err, docs) {
+		user.customFieldsModel.find({ isActive: true }, function(err, docs) {
                     if (err) res.send(500, err);
                     callback(null, docs);
                 });
@@ -507,9 +507,6 @@ module.exports = function(app, user) {
                 });
             }
         }, function(err, result) {
-            for (var i = 0; i < result.userInfo.field.length; i++) {
-
-            }
             res.send(200, result.userInfo);
         });
 
