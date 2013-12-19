@@ -23,12 +23,12 @@ directory.LoginView = Backbone.View.extend({
 
     dovalidate: function() {
         var errormsg = "Invalid Username and Password!";
-       // var flag = true;
-        /*alert(tz_err(1, "#exampleInputEmail1", !$("#exampleInputEmail1").val(), errormsg));
-        
-       tz_err(2, "#exampleInputEmail1", $("#exampleInputEmail1").val().length < 6 || $("#exampleInputEmail1").val().length > 10, errormsg);
-     tz_err(3, "#exampleInputEmail1", !$("#exampleInputEmail1").val().match("/^[A-Za-z0-9]$/"), errormsg);
-      tz_err(4, "#exampleInputPassword1", !$("#exampleInputPassword1").val(), errormsg);*/
+       
+            /*alert(tz_err(1, "#exampleInputEmail1", !$("#exampleInputEmail1").val(), errormsg));
+            
+             tz_err(2, "#exampleInputEmail1", $("#exampleInputEmail1").val().length < 6 || $("#exampleInputEmail1").val().length > 10, errormsg);
+             tz_err(3, "#exampleInputEmail1", !$("#exampleInputEmail1").val().match("/^[A-Za-z0-9]$/"), errormsg);
+             tz_err(4, "#exampleInputPassword1", !$("#exampleInputPassword1").val(), errormsg);*/
 
       if(!$("#exampleInputEmail1").val()){
         $('#errLogin').html(errormsg);
@@ -40,9 +40,8 @@ directory.LoginView = Backbone.View.extend({
         $('#errLogin').html(errormsg);
             return false;
       }
-     // alert(123);
-      return true;
-     // alert(flag);
+        return true;
+
         
 
     }
