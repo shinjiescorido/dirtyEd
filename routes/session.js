@@ -1,25 +1,27 @@
-/**
-    Session.js
-    Description:
-        Session Management for login and logout operation
-
-    Revision History
-    ------------------------------------------------------------------------------------------
-    Version     |    Date        |       Author           |    Description
-    ------------------------------------------------------------------------------------------
-    1.0.0        12/3/2013       Gladys Charmae Corsino       Created.
-
-    ------------------------------------------------------------------------------------------
-
-*/
-
 module.exports = function(app, user) {
-  app.post('/login', login);
-  app.delete('/logout', logout);
-
+  
+  app.get('/logout', logout);
+  app.get('/logouts', function (req,res){
+    res.end(req.session.loggedUser);
+  });
+  app.post('/login', function (req,res){
+    var username = req.body.username;
+    var password = req.body.password;
+       // res.send(200,1)
+    if(username == "admin" && password == "password"){
+        req.session.loggedUser = username;
+        res.jsonp("1");
+    }else{
+        res.jsonp("2");
+    }
+    
+  });
   /*
     Clear all user sessions.
   */
+  function islogged(theid){
+     return (theid);
+       }
   function logout(req, res) {
     if (req.session) {
       req.session.destroy();
@@ -29,6 +31,7 @@ module.exports = function(app, user) {
 
   //curl http://localhost:3000/login?username=Rosana.Ferolin&password=ladyinblack
   function login(req, res) {
+     if(islogged(req.session.loggedUser)) res.redirect('/');
     var options = {};
     if (req.query.skip) {
       option.skip = req.query.skip;
@@ -51,7 +54,9 @@ module.exports = function(app, user) {
         var validationRes = validateCredentials(user, passid);
         if (validationRes) {
           //redirect somewhere
+          res.send("ok");
         } else {
+          res.send("ther eare errors");
           //display error
           //password mismatch
         }

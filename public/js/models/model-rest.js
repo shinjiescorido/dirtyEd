@@ -66,3 +66,10 @@ directory.CustomFieldCollection = Backbone.Collection.extend({
     url:"/custom-fields/0"
 
 });
+directory.auth= Backbone.Model.extend({
+    defaults: {
+        username: "",
+        password: ""
+    },
+    url:"/login"
+});

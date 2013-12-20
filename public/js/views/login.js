@@ -1,5 +1,5 @@
 directory.LoginView = Backbone.View.extend({
-
+    // model: directory.auth,
     events:{
         "click #showMeBtn":"showMeBtnClick",
         "click #forgot" : "resetPass",
@@ -33,17 +33,27 @@ directory.LoginView = Backbone.View.extend({
       if(!$("#exampleInputEmail1").val()){
         $('#errLogin').html(errormsg);
             return false;
-      }else if($("#exampleInputEmail1").val().length < 6 || $("#exampleInputEmail1").val().length > 10){
+      }else if($("#exampleInputEmail1").val().length < 5 || $("#exampleInputEmail1").val().length > 10){
         $('#errLogin').html(errormsg);
             return false;
       }else if(!$("#exampleInputPassword1").val()){
         $('#errLogin').html(errormsg);
             return false;
       }
-        return true;
-
-        
-
+    var logins = new directory.auth;
+     //logins.save({username:'admin'},)
+     logins.set({username: $("#exampleInputEmail1").val(),  password: $("#exampleInputPassword1").val()});
+    logins.save({},{
+        success: function(model,response){
+        //alert("success");
+    // alert(response);
+        if(response = 1){
+                $('form').html('Logged in Successfully!');
+                //window.location('/');
+    }
+}
+       });
+       
     }
    
 });

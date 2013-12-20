@@ -9,6 +9,11 @@ app.configure(function () {
     app.use(require('less-middleware')({ src: __dirname + '/public' }));
     app.use(express.static(path.join(__dirname, 'public')));
     app.use(express.bodyParser());
+   // app.use(express.cookieParser());
+    //app.use(express.session({secret: '1234567890QWERTY'}));
+    //app.use(express.bodyParser());
+app.use(express.cookieParser('shhhh, very secret'));
+app.use(express.session());
 });
 
 /**
@@ -27,6 +32,7 @@ var models = require('./models/models');
 require('./routes/custom_fields')(app, models);
 require('./routes/users')(app, models);
 require('./routes/notifications')(app, models);
+require('./routes/session')(app, models);
 
 // require('./routes/custom_fields')(app);
 
